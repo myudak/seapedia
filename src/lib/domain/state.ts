@@ -1089,6 +1089,16 @@ export function getAdminMonitoring() {
   };
 }
 
+export function listOverdueOrders() {
+  const currentTime = getCurrentTime();
+  return getState().orders.filter(
+    (order) =>
+      order.status !== "Pesanan Selesai" &&
+      order.status !== "Dikembalikan" &&
+      order.dueAt < currentTime,
+  );
+}
+
 export function getCurrentTime() {
   return Number(getState().systemTime ?? now());
 }
