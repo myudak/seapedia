@@ -2,6 +2,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { BuyerAddressPanel } from "@/components/buyer-address-panel";
 import { BuyerCartPanel } from "@/components/buyer-cart-panel";
 import { BuyerCheckoutPanel } from "@/components/buyer-checkout-panel";
+import { BuyerOrderPanel } from "@/components/buyer-order-panel";
 import { BuyerWalletPanel } from "@/components/buyer-wallet-panel";
 
 export default function BuyerDashboardPage() {
@@ -15,6 +16,7 @@ export default function BuyerDashboardPage() {
       <BuyerAddressPanel />
       <BuyerCartPanel />
       <BuyerCheckoutPanel />
+      <BuyerOrderPanel />
     </DashboardShell>
   );
 }

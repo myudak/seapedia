@@ -820,3 +820,30 @@ export function createCheckoutOrder(
 
   return order;
 }
+
+export function listBuyerOrders(buyerId: string) {
+  return getState().orders.filter((order) => order.buyerId === buyerId);
+}
+
+export function listSellerOrders(sellerId: string) {
+  return getState().orders.filter((order) => order.sellerId === sellerId);
+}
+
+export function getOrderForParticipant(userId: string, orderId: string) {
+  const order = getState().orders.find(
+    (item) =>
+      item.id === orderId &&
+      (item.buyerId === userId || item.sellerId === userId),
+  );
+
+  if (!order) {
+    return null;
+  }
+
+  return {
+    order,
+    history: getState().orderStatusHistory.filter(
+      (entry) => entry.orderId === orderId,
+    ),
+  };
+}
