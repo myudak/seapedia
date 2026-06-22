@@ -100,8 +100,22 @@ function createInitialState(): AppState {
     ],
     stores: [firstStore, secondStore],
     products: [
-      seedProduct(firstStore, "Coral Market Tote", 129000, 18),
-      seedProduct(secondStore, "Archipelago Coffee Set", 185000, 26),
+      seedProduct("prd-coral-tote", firstStore, "Coral Market Tote", 129000, 18),
+      seedProduct(
+        "prd-archipelago-coffee",
+        secondStore,
+        "Archipelago Coffee Set",
+        185000,
+        26,
+      ),
+      seedProduct("prd-rattan-lamp", firstStore, "Rattan Desk Lamp", 249000, 9),
+      seedProduct(
+        "prd-batik-organizer",
+        secondStore,
+        "Batik Cable Organizer",
+        79000,
+        31,
+      ),
     ],
     wallets: [
       {
@@ -155,13 +169,14 @@ function seedStore(sellerId: string, name: string): StoreProfile {
 }
 
 function seedProduct(
+  id: string,
   store: StoreProfile,
   name: string,
   price: number,
   stock: number,
 ): Product {
   return {
-    id: randomUUID(),
+    id,
     storeId: store.id,
     sellerId: store.sellerId,
     name,
@@ -629,6 +644,13 @@ export function addCartItem(
   const existing = state.cartItems.find(
     (item) => item.buyerId === buyerId && item.productId === productId,
   );
+  const existingStoreId = state.cartItems.find(
+    (item) => item.buyerId === buyerId,
+  )?.storeId;
+
+  if (existingStoreId && existingStoreId !== product.storeId) {
+    throw new Error("Cart can only contain products from one store.");
+  }
 
   if (existing) {
     existing.quantity += quantity;
