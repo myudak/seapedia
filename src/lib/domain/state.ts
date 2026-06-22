@@ -1070,6 +1070,7 @@ export function listDriverJobs(driverId: string) {
 export function getAdminMonitoring() {
   const state = getState();
   const currentTime = getCurrentTime();
+  const overdueOrders = findOverdueOrders(currentTime);
 
   return {
     users: state.users.length,
@@ -1079,18 +1080,16 @@ export function getAdminMonitoring() {
     vouchers: state.vouchers.length,
     promos: state.promos.length,
     deliveryJobs: state.deliveryJobs.length,
-    overdueOrders: state.orders.filter(
-      (order) =>
-        order.status !== "Pesanan Selesai" &&
-        order.status !== "Dikembalikan" &&
-        order.dueAt < currentTime,
-    ).length,
+    overdueOrders: overdueOrders.length,
     currentTime,
   };
 }
 
 export function listOverdueOrders() {
-  const currentTime = getCurrentTime();
+  return findOverdueOrders(getCurrentTime());
+}
+
+function findOverdueOrders(currentTime: number) {
   return getState().orders.filter(
     (order) =>
       order.status !== "Pesanan Selesai" &&
