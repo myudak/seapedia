@@ -771,6 +771,13 @@ function resolveDiscount(discountCode: string | undefined, subtotal: number) {
   const voucher = state.vouchers.find((item) => item.code === code);
 
   if (voucher) {
+    if (voucher.expiresAt <= now()) {
+      throw new Error("Voucher is expired.");
+    }
+    if (voucher.remainingUsage <= 0) {
+      throw new Error("Voucher has no remaining usage.");
+    }
+
     return {
       amount: Math.round(subtotal * (voucher.percentOff / 100)),
       code: voucher.code,
@@ -781,6 +788,10 @@ function resolveDiscount(discountCode: string | undefined, subtotal: number) {
   const promo = state.promos.find((item) => item.code === code);
 
   if (promo) {
+    if (promo.expiresAt <= now()) {
+      throw new Error("Promo is expired.");
+    }
+
     return {
       amount: Math.min(promo.amountOff, subtotal),
       code: promo.code,
