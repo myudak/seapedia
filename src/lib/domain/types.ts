@@ -68,5 +68,10 @@ export type Product = {
   updatedAt: number;
 };
 
+export type CatalogProduct = Product & {
+  storeName: string;
+  storeSlug: string;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

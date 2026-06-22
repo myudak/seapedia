@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import type {
   AppReview,
   AuthProfile,
+  CatalogProduct,
   Product,
   PublicUser,
   Role,
@@ -451,4 +452,20 @@ export function deleteSellerProduct(sellerId: string, productId: string) {
 
   state.products.splice(index, 1);
   return deleted;
+}
+
+export function listCatalogProducts(): CatalogProduct[] {
+  const state = getState();
+  return state.products.map((product) => {
+    const store = state.stores.find((item) => item.id === product.storeId);
+    return {
+      ...product,
+      storeName: store?.name ?? "Unknown Store",
+      storeSlug: store?.slug ?? "unknown-store",
+    };
+  });
+}
+
+export function getCatalogProduct(productId: string) {
+  return listCatalogProducts().find((product) => product.id === productId) ?? null;
 }

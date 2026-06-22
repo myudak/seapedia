@@ -4,25 +4,26 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { formatRupiah, publicProducts } from "@/lib/seed/public-products";
+import { getCatalogProduct, listCatalogProducts } from "@/lib/domain/state";
+import { formatRupiah } from "@/lib/seed/public-products";
 
 type ProductDetailProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateStaticParams() {
-  return publicProducts.map((product) => ({ id: product.id }));
+  return listCatalogProducts().map((product) => ({ id: product.id }));
 }
 
 export async function generateMetadata({ params }: ProductDetailProps) {
   const { id } = await params;
-  const product = publicProducts.find((item) => item.id === id);
+  const product = getCatalogProduct(id);
   return { title: product?.name ?? "Product" };
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailProps) {
   const { id } = await params;
-  const product = publicProducts.find((item) => item.id === id);
+  const product = getCatalogProduct(id);
 
   if (!product) {
     notFound();

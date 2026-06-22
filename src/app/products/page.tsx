@@ -3,13 +3,16 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { formatRupiah, publicProducts } from "@/lib/seed/public-products";
+import { listCatalogProducts } from "@/lib/domain/state";
+import { formatRupiah } from "@/lib/seed/public-products";
 
 export const metadata = {
   title: "Catalog",
 };
 
 export default function ProductsPage() {
+  const products = listCatalogProducts();
+
   return (
     <AppShell>
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -32,7 +35,7 @@ export default function ProductsPage() {
         </div>
 
         <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {publicProducts.map((product) => (
+          {products.map((product) => (
             <Link href={`/products/${product.id}`} key={product.id}>
               <Card className="h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-[0_22px_70px_rgba(23,33,27,0.12)]">
                 <div className="relative aspect-[4/3]">
