@@ -194,5 +194,15 @@ export type Promo = {
   createdAt: number;
 };
 
+export type DeliveryJob = {
+  id: string;
+  orderId: string;
+  driverId?: string;
+  status: "available" | "taken" | "completed";
+  earning: number;
+  createdAt: number;
+  updatedAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

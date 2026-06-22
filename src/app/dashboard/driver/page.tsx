@@ -1,4 +1,5 @@
 import { DashboardShell } from "@/components/dashboard-shell";
+import { DriverJobPanel } from "@/components/driver-job-panel";
 
 export default function DriverDashboardPage() {
   return (
@@ -7,9 +8,7 @@ export default function DriverDashboardPage() {
       title="Driver Dashboard"
       subtitle="Available jobs, active delivery, completion actions, and earnings live here."
     >
-      <p className="text-[var(--muted)]">
-        Driver features are introduced progressively in Level 5.
-      </p>
+      <DriverJobPanel />
     </DashboardShell>
   );
 }

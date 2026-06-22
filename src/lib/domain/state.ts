@@ -24,6 +24,7 @@ import type {
   Wallet,
   WalletTransaction,
   DeliveryMethod,
+  DeliveryJob,
 } from "./types";
 import { SESSION_TTL_MS } from "./types";
 
@@ -41,6 +42,7 @@ type AppState = {
   orderStatusHistory: OrderStatusEntry[];
   vouchers: Voucher[];
   promos: Promo[];
+  deliveryJobs: DeliveryJob[];
 };
 
 declare global {
@@ -178,6 +180,7 @@ function createInitialState(): AppState {
         createdAt: now(),
       },
     ],
+    deliveryJobs: [],
   };
 }
 
@@ -945,7 +948,39 @@ export function processSellerOrder(sellerId: string, orderId: string) {
 
   order.status = "Menunggu Pengirim";
   addOrderStatus(order.id, order.status, "Seller processed the order.");
+  ensureDeliveryJob(order.id);
   return order;
+}
+
+function ensureDeliveryJob(orderId: string) {
+  const state = getState();
+  const existing = state.deliveryJobs.find((job) => job.orderId === orderId);
+  const order = state.orders.find((item) => item.id === orderId);
+
+  if (existing || !order || order.status !== "Menunggu Pengirim") {
+    return existing ?? null;
+  }
+
+  const job: DeliveryJob = {
+    id: randomUUID(),
+    orderId,
+    status: "available",
+    earning: 0,
+    createdAt: now(),
+    updatedAt: now(),
+  };
+  state.deliveryJobs.unshift(job);
+  return job;
+}
+
+export function listAvailableDeliveryJobs() {
+  const state = getState();
+  return state.deliveryJobs
+    .filter((job) => job.status === "available")
+    .map((job) => ({
+      ...job,
+      order: state.orders.find((order) => order.id === job.orderId),
+    }));
 }
 
 export function getBuyerSpendingReport(buyerId: string) {
