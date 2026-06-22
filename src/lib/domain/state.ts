@@ -43,6 +43,7 @@ type AppState = {
   vouchers: Voucher[];
   promos: Promo[];
   deliveryJobs: DeliveryJob[];
+  systemTime?: number;
 };
 
 declare global {
@@ -181,6 +182,7 @@ function createInitialState(): AppState {
       },
     ],
     deliveryJobs: [],
+    systemTime: now(),
   };
 }
 
@@ -1063,6 +1065,32 @@ export function listDriverJobs(driverId: string) {
     history: jobs.filter((job) => job.status === "completed"),
     earnings: jobs.reduce((sum, job) => sum + job.earning, 0),
   };
+}
+
+export function getAdminMonitoring() {
+  const state = getState();
+  const currentTime = getCurrentTime();
+
+  return {
+    users: state.users.length,
+    stores: state.stores.length,
+    products: state.products.length,
+    orders: state.orders.length,
+    vouchers: state.vouchers.length,
+    promos: state.promos.length,
+    deliveryJobs: state.deliveryJobs.length,
+    overdueOrders: state.orders.filter(
+      (order) =>
+        order.status !== "Pesanan Selesai" &&
+        order.status !== "Dikembalikan" &&
+        order.dueAt < currentTime,
+    ).length,
+    currentTime,
+  };
+}
+
+function getCurrentTime() {
+  return Number(getState().systemTime ?? now());
 }
 
 export function getBuyerSpendingReport(buyerId: string) {
