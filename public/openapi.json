@@ -1,0 +1,39 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SEAPEDIA API",
+    "version": "1.0.0",
+    "description": "Documented HTTP API for the SEAPEDIA marketplace demo."
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "paths": {
+    "/api/auth/register": { "post": { "summary": "Register user" } },
+    "/api/auth/login": { "post": { "summary": "Login and set session cookie" } },
+    "/api/auth/role": { "post": { "summary": "Choose active role" } },
+    "/api/profile": { "get": { "summary": "Read current profile" } },
+    "/api/reviews": {
+      "get": { "summary": "List public application reviews" },
+      "post": { "summary": "Create public application review" }
+    },
+    "/api/products": { "get": { "summary": "List public catalog products" } },
+    "/api/products/{id}": { "get": { "summary": "Read public product detail" } },
+    "/api/seller/store": {
+      "get": { "summary": "Read seller store" },
+      "post": { "summary": "Create or update seller store" }
+    },
+    "/api/seller/products": {
+      "get": { "summary": "List seller products" },
+      "post": { "summary": "Create seller product" }
+    },
+    "/api/buyer/wallet": { "get": { "summary": "Read buyer wallet" } },
+    "/api/buyer/wallet/topup": { "post": { "summary": "Dummy wallet top-up" } },
+    "/api/buyer/cart": { "get": { "summary": "Read cart summary" } },
+    "/api/buyer/checkout": { "post": { "summary": "Create order from cart" } },
+    "/api/driver/jobs": { "get": { "summary": "List available delivery jobs" } },
+    "/api/admin/monitoring": { "get": { "summary": "Admin marketplace monitoring" } },
+    "/api/admin/overdue": {
+      "get": { "summary": "List overdue orders" },
+      "post": { "summary": "Run auto return/refund" }
+    }
+  }
+}
