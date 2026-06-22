@@ -378,7 +378,15 @@ export function logoutToken(token?: string | null) {
 }
 
 function publicText(value: string, maxLength: number) {
-  return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
 }
 
 export function listAppReviews() {
