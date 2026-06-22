@@ -1089,8 +1089,14 @@ export function getAdminMonitoring() {
   };
 }
 
-function getCurrentTime() {
+export function getCurrentTime() {
   return Number(getState().systemTime ?? now());
+}
+
+export function advanceSystemTime(days: number) {
+  const state = getState();
+  state.systemTime = getCurrentTime() + days * 86_400_000;
+  return { currentTime: state.systemTime };
 }
 
 export function getBuyerSpendingReport(buyerId: string) {
