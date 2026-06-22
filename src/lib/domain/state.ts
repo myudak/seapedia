@@ -1099,6 +1099,46 @@ export function listOverdueOrders() {
   );
 }
 
+export function handleOverdueOrders() {
+  const state = getState();
+  const overdueOrders = listOverdueOrders();
+
+  overdueOrders.forEach((order) => {
+    if (order.refundedAt || order.status === "Dikembalikan") {
+      return;
+    }
+
+    order.items.forEach((item) => {
+      const product = state.products.find(
+        (candidate) => candidate.id === item.productId,
+      );
+
+      if (product) {
+        product.stock += item.quantity;
+      }
+    });
+
+    const wallet = getBuyerWallet(order.buyerId);
+    wallet.balance += order.total;
+    wallet.updatedAt = now();
+    order.refundedAt = now();
+    order.status = "Dikembalikan";
+
+    state.walletTransactions.unshift({
+      id: randomUUID(),
+      buyerId: order.buyerId,
+      type: "refund",
+      amount: order.total,
+      note: `Refund for overdue order ${order.id}`,
+      createdAt: now(),
+    });
+
+    addOrderStatus(order.id, order.status, "Auto return/refund for overdue order.");
+  });
+
+  return overdueOrders;
+}
+
 export function getCurrentTime() {
   return Number(getState().systemTime ?? now());
 }
