@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
+import { publicNavItems } from "@/lib/domain/navigation";
 
 type AppShellProps = {
   children: ReactNode;
@@ -17,10 +18,11 @@ export function AppShell({ children }: AppShellProps) {
             <span>SEAPEDIA</span>
           </a>
           <nav className="hidden items-center gap-3 text-sm font-bold text-[var(--muted)] md:flex">
-            <a href="#catalog">Catalog</a>
-            <a href="#roles">Roles</a>
-            <a href="#checkout">Checkout</a>
-            <a href="#admin">Admin</a>
+            {publicNavItems.map((item) => (
+              <a key={item.href} href={item.href}>
+                {item.label}
+              </a>
+            ))}
           </nav>
           <Badge>Demo ready</Badge>
         </div>
