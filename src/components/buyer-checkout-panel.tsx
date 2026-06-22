@@ -69,6 +69,24 @@ export function BuyerCheckoutPanel() {
           </p>
         </Card>
       ) : null}
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={() => {
+          fetch("/api/buyer/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deliveryMethod }),
+          })
+            .then((response) => response.json())
+            .then((payload) => {
+              setMessage(payload.ok ? "Order created." : payload.error);
+            })
+            .catch(() => setMessage("Checkout requires Buyer login."));
+        }}
+      >
+        Confirm checkout
+      </Button>
       <p className="text-sm font-semibold text-[var(--market)]">{message}</p>
     </section>
   );

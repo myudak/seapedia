@@ -135,5 +135,45 @@ export type CheckoutSummary = {
   deliveryMethod: DeliveryMethod;
 };
 
+export const orderStatuses = [
+  "Sedang Dikemas",
+  "Menunggu Pengirim",
+  "Sedang Dikirim",
+  "Pesanan Selesai",
+  "Dikembalikan",
+] as const;
+
+export type OrderStatus = (typeof orderStatuses)[number];
+
+export type OrderItem = {
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  lineTotal: number;
+};
+
+export type Order = CheckoutSummary & {
+  id: string;
+  buyerId: string;
+  sellerId: string;
+  storeId: string;
+  storeName: string;
+  items: OrderItem[];
+  status: OrderStatus;
+  dueAt: number;
+  createdAt: number;
+  refundedAt?: number;
+  completedAt?: number;
+};
+
+export type OrderStatusEntry = {
+  id: string;
+  orderId: string;
+  status: OrderStatus;
+  note: string;
+  createdAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

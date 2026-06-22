@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { createHash, randomUUID } from "crypto";
 import { nanoid } from "nanoid";
 import { calculateCheckoutSummary } from "./commerce";
+import { deliverySlaDays } from "./commerce";
 import type {
   AppReview,
   AuthProfile,
@@ -9,6 +10,9 @@ import type {
   CartSummary,
   CatalogProduct,
   DeliveryAddress,
+  Order,
+  OrderStatus,
+  OrderStatusEntry,
   Product,
   PublicUser,
   Role,
@@ -31,6 +35,8 @@ type AppState = {
   walletTransactions: WalletTransaction[];
   addresses: DeliveryAddress[];
   cartItems: CartItem[];
+  orders: Order[];
+  orderStatusHistory: OrderStatusEntry[];
 };
 
 declare global {
@@ -147,6 +153,8 @@ function createInitialState(): AppState {
       },
     ],
     cartItems: [],
+    orders: [],
+    orderStatusHistory: [],
   };
 }
 
@@ -722,4 +730,79 @@ export function previewCheckout(
       deliveryMethod,
     }),
   };
+}
+
+function addOrderStatus(orderId: string, status: OrderStatus, note: string) {
+  const entry: OrderStatusEntry = {
+    id: randomUUID(),
+    orderId,
+    status,
+    note,
+    createdAt: now(),
+  };
+  getState().orderStatusHistory.push(entry);
+  return entry;
+}
+
+export function createCheckoutOrder(
+  buyerId: string,
+  deliveryMethod: DeliveryMethod,
+) {
+  const state = getState();
+  const { cart, summary } = previewCheckout(buyerId, deliveryMethod);
+  const firstItem = cart.items[0];
+  const product = state.products.find((item) => item.id === firstItem.productId);
+  const store = state.stores.find((item) => item.id === firstItem.storeId);
+  const wallet = getBuyerWallet(buyerId);
+
+  if (!product || !store) {
+    throw new Error("Cart product is no longer available.");
+  }
+
+  cart.items.forEach((item) => {
+    const cartProduct = state.products.find(
+      (candidate) => candidate.id === item.productId,
+    );
+
+    if (cartProduct) {
+      cartProduct.stock -= item.quantity;
+    }
+  });
+
+  wallet.balance -= summary.total;
+  wallet.updatedAt = now();
+
+  state.walletTransactions.unshift({
+    id: randomUUID(),
+    buyerId,
+    type: "checkout",
+    amount: -summary.total,
+    note: "Checkout payment",
+    createdAt: now(),
+  });
+
+  const order: Order = {
+    id: randomUUID(),
+    buyerId,
+    sellerId: product.sellerId,
+    storeId: store.id,
+    storeName: store.name,
+    items: cart.items.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      price: item.price,
+      quantity: item.quantity,
+      lineTotal: item.lineTotal,
+    })),
+    status: "Sedang Dikemas",
+    dueAt: now() + deliverySlaDays[deliveryMethod] * 86_400_000,
+    createdAt: now(),
+    ...summary,
+  };
+
+  state.orders.unshift(order);
+  addOrderStatus(order.id, order.status, "Order created after buyer checkout.");
+  state.cartItems = state.cartItems.filter((item) => item.buyerId !== buyerId);
+
+  return order;
 }

@@ -8,6 +8,12 @@ export const deliveryFees: Record<DeliveryMethod, number> = {
   Regular: 8000,
 };
 
+export const deliverySlaDays: Record<DeliveryMethod, number> = {
+  Instant: 0,
+  "Next Day": 1,
+  Regular: 3,
+};
+
 export function calculateCheckoutSummary(input: {
   subtotal: number;
   deliveryMethod: DeliveryMethod;
