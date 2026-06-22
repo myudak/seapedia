@@ -133,6 +133,8 @@ export type CheckoutSummary = {
   ppn: number;
   total: number;
   deliveryMethod: DeliveryMethod;
+  discountCode?: string;
+  discountType?: "Voucher" | "Promo";
 };
 
 export const orderStatuses = [

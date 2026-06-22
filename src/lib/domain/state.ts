@@ -739,6 +739,7 @@ export function removeCartItem(buyerId: string, itemId: string) {
 export function previewCheckout(
   buyerId: string,
   deliveryMethod: DeliveryMethod,
+  discountCode?: string,
 ) {
   const cart = getCartSummary(buyerId);
 
@@ -746,13 +747,48 @@ export function previewCheckout(
     throw new Error("Cart is empty.");
   }
 
+  const discount = resolveDiscount(discountCode, cart.subtotal);
+
   return {
     cart,
     summary: calculateCheckoutSummary({
       subtotal: cart.subtotal,
       deliveryMethod,
+      discount: discount.amount,
+      discountCode: discount.code,
+      discountType: discount.type,
     }),
   };
+}
+
+function resolveDiscount(discountCode: string | undefined, subtotal: number) {
+  if (!discountCode) {
+    return { amount: 0 };
+  }
+
+  const code = discountCode.trim().toUpperCase();
+  const state = getState();
+  const voucher = state.vouchers.find((item) => item.code === code);
+
+  if (voucher) {
+    return {
+      amount: Math.round(subtotal * (voucher.percentOff / 100)),
+      code: voucher.code,
+      type: "Voucher" as const,
+    };
+  }
+
+  const promo = state.promos.find((item) => item.code === code);
+
+  if (promo) {
+    return {
+      amount: Math.min(promo.amountOff, subtotal),
+      code: promo.code,
+      type: "Promo" as const,
+    };
+  }
+
+  throw new Error("Discount code not found.");
 }
 
 function addOrderStatus(orderId: string, status: OrderStatus, note: string) {
@@ -770,9 +806,10 @@ function addOrderStatus(orderId: string, status: OrderStatus, note: string) {
 export function createCheckoutOrder(
   buyerId: string,
   deliveryMethod: DeliveryMethod,
+  discountCode?: string,
 ) {
   const state = getState();
-  const { cart, summary } = previewCheckout(buyerId, deliveryMethod);
+  const { cart, summary } = previewCheckout(buyerId, deliveryMethod, discountCode);
   const firstItem = cart.items[0];
   const product = state.products.find((item) => item.id === firstItem.productId);
   const store = state.stores.find((item) => item.id === firstItem.storeId);
@@ -817,6 +854,13 @@ export function createCheckoutOrder(
     note: "Checkout payment",
     createdAt: now(),
   });
+
+  if (summary.discountType === "Voucher" && summary.discountCode) {
+    const voucher = state.vouchers.find((item) => item.code === summary.discountCode);
+    if (voucher) {
+      voucher.remainingUsage -= 1;
+    }
+  }
 
   const order: Order = {
     id: randomUUID(),

@@ -18,6 +18,8 @@ export function calculateCheckoutSummary(input: {
   subtotal: number;
   deliveryMethod: DeliveryMethod;
   discount?: number;
+  discountCode?: string;
+  discountType?: "Voucher" | "Promo";
 }): CheckoutSummary {
   const discount = Math.min(input.discount ?? 0, input.subtotal);
   const taxableSubtotal = input.subtotal - discount;
@@ -31,5 +33,7 @@ export function calculateCheckoutSummary(input: {
     ppn,
     total: taxableSubtotal + deliveryFee + ppn,
     deliveryMethod: input.deliveryMethod,
+    discountCode: input.discountCode,
+    discountType: input.discountType,
   };
 }

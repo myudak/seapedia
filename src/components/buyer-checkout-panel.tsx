@@ -5,6 +5,7 @@ import { ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, SelectInput } from "@/components/ui/field";
+import { TextInput } from "@/components/ui/field";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 type Summary = {
@@ -17,6 +18,7 @@ type Summary = {
 
 export function BuyerCheckoutPanel() {
   const [deliveryMethod, setDeliveryMethod] = useState("Regular");
+  const [discountCode, setDiscountCode] = useState("HEMAT12");
   const [summary, setSummary] = useState<Summary | null>(null);
   const [message, setMessage] = useState("Cart summary calculates PPN 12%.");
 
@@ -24,13 +26,13 @@ export function BuyerCheckoutPanel() {
     <section className="mt-8 grid gap-4" id="checkout">
       <h2 className="text-2xl font-black">Checkout Summary</h2>
       <form
-        className="grid gap-4 md:grid-cols-[1fr_auto]"
+        className="grid gap-4 md:grid-cols-[1fr_1fr_auto]"
         onSubmit={(event) => {
           event.preventDefault();
           fetch("/api/buyer/checkout/summary", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ deliveryMethod }),
+            body: JSON.stringify({ deliveryMethod, discountCode }),
           })
             .then((response) => response.json())
             .then((payload) => {
@@ -54,6 +56,12 @@ export function BuyerCheckoutPanel() {
             <option>Regular</option>
           </SelectInput>
         </Field>
+        <Field label="Discount code">
+          <TextInput
+            value={discountCode}
+            onChange={(event) => setDiscountCode(event.target.value)}
+          />
+        </Field>
         <Button className="self-end" icon={<ReceiptText size={18} />}>
           Preview
         </Button>
@@ -76,7 +84,7 @@ export function BuyerCheckoutPanel() {
           fetch("/api/buyer/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ deliveryMethod }),
+            body: JSON.stringify({ deliveryMethod, discountCode }),
           })
             .then((response) => response.json())
             .then((payload) => {

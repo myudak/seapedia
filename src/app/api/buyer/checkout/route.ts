@@ -6,6 +6,7 @@ import { requireActiveRole } from "@/lib/server/auth";
 
 const checkoutSchema = z.object({
   deliveryMethod: z.enum(deliveryMethods),
+  discountCode: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -17,9 +18,14 @@ export async function POST(request: Request) {
 
   try {
     const profile = await requireActiveRole("Buyer");
-    return ok(createCheckoutOrder(profile.user.id, parsed.data.deliveryMethod), {
-      status: 201,
-    });
+    return ok(
+      createCheckoutOrder(
+        profile.user.id,
+        parsed.data.deliveryMethod,
+        parsed.data.discountCode,
+      ),
+      { status: 201 },
+    );
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Checkout failed.");
   }
