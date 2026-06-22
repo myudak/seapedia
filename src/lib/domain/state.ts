@@ -814,6 +814,12 @@ function addOrderStatus(orderId: string, status: OrderStatus, note: string) {
   return entry;
 }
 
+export function getOrderStatusTimeline(orderId: string) {
+  return getState().orderStatusHistory
+    .filter((entry) => entry.orderId === orderId)
+    .sort((left, right) => left.createdAt - right.createdAt);
+}
+
 export function createCheckoutOrder(
   buyerId: string,
   deliveryMethod: DeliveryMethod,
@@ -920,9 +926,7 @@ export function getOrderForParticipant(userId: string, orderId: string) {
 
   return {
     order,
-    history: getState().orderStatusHistory.filter(
-      (entry) => entry.orderId === orderId,
-    ),
+    history: getOrderStatusTimeline(orderId),
   };
 }
 

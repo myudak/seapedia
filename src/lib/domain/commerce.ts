@@ -2,6 +2,14 @@ import type { CheckoutSummary, DeliveryMethod } from "./types";
 
 export const PPN_RATE = 0.12;
 
+export const mainOrderLifecycle = [
+  "Sedang Dikemas",
+  "Menunggu Pengirim",
+  "Sedang Dikirim",
+  "Pesanan Selesai",
+  "Dikembalikan",
+] as const;
+
 export const deliveryFees: Record<DeliveryMethod, number> = {
   Instant: 20000,
   "Next Day": 12000,
