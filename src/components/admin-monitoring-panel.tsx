@@ -9,7 +9,7 @@ type Monitoring = Record<string, number>;
 
 export function AdminMonitoringPanel() {
   const [monitoring, setMonitoring] = useState<Monitoring | null>(null);
-  const [message, setMessage] = useState("Monitoring data supports the final demo.");
+  const [message, setMessage] = useState("Monitoring data is ready.");
 
   return (
     <section className="grid gap-4">

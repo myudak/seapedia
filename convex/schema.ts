@@ -56,6 +56,7 @@ export default defineSchema({
     price: v.number(),
     stock: v.number(),
     imageUrl: v.string(),
+    galleryImages: v.optional(v.array(v.string())),
     category: v.optional(v.string()),
     rating: v.optional(v.number()),
     soldCount: v.optional(v.number()),

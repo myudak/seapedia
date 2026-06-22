@@ -18,7 +18,7 @@ const initialReviews: Review[] = [
   {
     reviewerName: "Dina",
     rating: 5,
-    comment: "Role flow is clear, and the marketplace feels ready for a demo.",
+    comment: "Role flow is clear, and the marketplace feels ready for launch.",
   },
   {
     reviewerName: "Raka",

@@ -15,7 +15,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
   const [password, setPassword] = useState("seapedia123");
   const [displayName, setDisplayName] = useState("New Seapedia User");
   const [email, setEmail] = useState("new@seapedia.test");
-  const [message, setMessage] = useState("Choose a demo account or register.");
+  const [message, setMessage] = useState("Sign in or create an account.");
 
   const isLogin = mode === "login";
 

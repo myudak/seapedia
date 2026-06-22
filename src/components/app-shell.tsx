@@ -15,7 +15,7 @@ export function AppShell({ children }: AppShellProps) {
       <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-white/95 backdrop-blur">
         <div className="bg-[var(--ink)] text-white">
           <div className="mx-auto flex min-h-9 max-w-7xl items-center justify-between gap-3 px-4 text-xs font-bold sm:px-6">
-            <span>SEA Week Deals live for demo accounts</span>
+            <span>SEA Week Deals live now</span>
             <span className="hidden text-white/70 sm:inline">
               Voucher HEMAT12 • Promo ONGKIR8K
             </span>
@@ -36,7 +36,7 @@ export function AppShell({ children }: AppShellProps) {
             <span className="leading-none">
               <span className="block text-lg tracking-[0.08em]">SEAPEDIA</span>
               <span className="block text-[10px] font-black uppercase text-[var(--muted)]">
-                Serious demo commerce
+                Marketplace operations
               </span>
             </span>
           </Link>
@@ -44,7 +44,7 @@ export function AppShell({ children }: AppShellProps) {
           <div className="hidden min-h-12 flex-1 items-center gap-3 border border-[var(--line)] bg-[var(--soft)] px-4 lg:flex">
             <Search size={18} className="text-[var(--muted)]" />
             <span className="text-sm font-semibold text-[var(--muted)]">
-              Search products, stores, or demo workflows
+              Search products, stores, or orders
             </span>
           </div>
 
@@ -71,19 +71,19 @@ export function AppShell({ children }: AppShellProps) {
             <Link
               href="/products"
               className="grid size-11 place-items-center border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--danger)]"
-              aria-label="Open cart demo"
+              aria-label="Open cart"
             >
               <ShoppingCart size={18} />
             </Link>
             <Link
               href="/login"
-              className="inline-flex min-h-11 items-center gap-2 bg-[var(--danger)] px-4 text-sm font-black text-white hover:bg-[#c91f1f]"
+              className="inline-flex size-11 items-center justify-center gap-2 bg-[var(--danger)] text-sm font-black text-white hover:bg-[#c91f1f] sm:w-auto sm:px-4"
             >
               <UserRound size={17} />
-              Login
+              <span className="hidden sm:inline">Login</span>
             </Link>
             <span className="hidden sm:block">
-              <Badge>Demo ready</Badge>
+              <Badge>Ready</Badge>
             </span>
           </div>
         </div>

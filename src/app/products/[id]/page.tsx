@@ -39,6 +39,10 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
     notFound();
   }
 
+  const galleryImages = product.galleryImages?.length
+    ? product.galleryImages
+    : [product.imageUrl];
+
   return (
     <AppShell>
       <main className="bg-[var(--background)]">
@@ -63,7 +67,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
                 </span>
               ) : null}
               <Image
-                src={product.imageUrl}
+                src={galleryImages[0]}
                 alt={product.name}
                 fill
                 sizes="(min-width: 1024px) 55vw, 100vw"
@@ -73,22 +77,20 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
             </div>
 
             <div className="grid grid-cols-4 gap-3">
-              {[product.imageUrl, product.imageUrl, product.imageUrl, product.imageUrl].map(
-                (imageUrl, index) => (
-                  <div
-                    className="relative aspect-square border border-[var(--line)] bg-white"
-                    key={`${imageUrl}-${index}`}
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt={`${product.name} thumbnail ${index + 1}`}
-                      fill
-                      sizes="25vw"
-                      className="object-cover"
-                    />
-                  </div>
-                ),
-              )}
+              {galleryImages.map((imageUrl, index) => (
+                <div
+                  className="relative aspect-square border border-[var(--line)] bg-white"
+                  key={`${imageUrl}-${index}`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    fill
+                    sizes="25vw"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -180,8 +182,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
             <div className="flex items-center gap-3 border border-[var(--line)] bg-white p-4">
               <BadgeCheck className="text-[var(--market)]" size={22} />
               <p className="text-sm font-bold text-[var(--muted)]">
-                SEAPEDIA demo data is seeded locally for browser review and
-                assignment assessment.
+                SEAPEDIA verifies catalog data before checkout.
               </p>
             </div>
           </div>

@@ -62,7 +62,7 @@ const services = [
   { label: "Instant courier", icon: Truck },
   { label: "Seller verified", icon: PackageCheck },
   { label: "Wallet protected", icon: ShieldCheck },
-  { label: "Demo support", icon: Headphones },
+  { label: "Support center", icon: Headphones },
 ];
 
 export default function Home() {
@@ -86,7 +86,7 @@ export default function Home() {
           <div className="relative mx-auto min-h-[560px] max-w-7xl px-4 py-12 sm:px-6 lg:flex lg:min-h-[640px] lg:items-center">
             <div className="max-w-2xl text-white">
               <Badge className="border-white/20 bg-white/10 text-white">
-                SEA Week Deals / Demo ready
+                SEA Week Deals
               </Badge>
               <h1 className="mt-6 text-5xl font-black leading-[0.96] md:text-7xl">
                 Belanja lokal dengan alur marketplace lengkap.
@@ -101,7 +101,7 @@ export default function Home() {
                   <ArrowRight size={18} />
                 </Link>
                 <Link className="btn-secondary-dark" href="/login">
-                  Login demo
+                  Login
                 </Link>
               </div>
               <div className="mt-10 grid max-w-xl gap-3 sm:grid-cols-3">
@@ -232,13 +232,13 @@ export default function Home() {
               One storefront, four operational dashboards.
             </h2>
             <p className="mt-3 leading-7 text-[var(--muted)]">
-              The public shop is only the front counter. Behind it, every demo
+              The public shop is only the front counter. Behind it, every
               role has a specific workflow: checkout, fulfillment, delivery,
               monitoring, discounts, and overdue refunds.
             </p>
             <div className="mt-6 flex items-center gap-2 text-sm font-black text-[var(--market)]">
               <Sparkles size={18} />
-              Built for Level 7 assignment coverage.
+              Fulfillment, delivery, and monitoring in one workflow.
             </div>
           </div>
 

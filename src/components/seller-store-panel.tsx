@@ -10,7 +10,7 @@ export function SellerStorePanel() {
   const [description, setDescription] = useState(
     "Curated Indonesian goods for everyday marketplace needs.",
   );
-  const [message, setMessage] = useState("Demo store profile ready.");
+  const [message, setMessage] = useState("Store profile ready.");
 
   return (
     <section className="grid gap-4">

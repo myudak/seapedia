@@ -7,13 +7,13 @@ import { Card } from "@/components/ui/card";
 
 export function AdminTimePanel() {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
-  const [message, setMessage] = useState("Simulate next day for overdue demos.");
+  const [message, setMessage] = useState("Simulate next day for overdue orders.");
 
   return (
     <section className="mt-8 grid gap-4">
       <h2 className="text-2xl font-black">Time Simulation</h2>
       <Card className="p-4">
-        <p className="text-sm text-[var(--muted)]">Current demo time</p>
+        <p className="text-sm text-[var(--muted)]">Current system time</p>
         <p className="mt-1 font-black">
           {currentTime ? new Date(currentTime).toLocaleString() : "Not simulated yet"}
         </p>

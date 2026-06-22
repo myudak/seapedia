@@ -102,7 +102,7 @@ function createInitialState(): AppState {
         reviewerName: "Dina",
         rating: 5,
         comment:
-          "Role flow is clear, and the marketplace feels ready for a demo.",
+          "Role flow is clear, and the marketplace feels ready for launch.",
         createdAt: now() - 86_400_000,
       },
       {
@@ -213,6 +213,7 @@ function seedProduct(
     price: catalogProduct.price,
     stock: catalogProduct.stock,
     imageUrl: catalogProduct.imageUrl,
+    galleryImages: catalogProduct.galleryImages,
     category: catalogProduct.category,
     rating: catalogProduct.rating,
     soldCount: catalogProduct.soldCount,
@@ -594,7 +595,7 @@ export function topUpBuyerWallet(buyerId: string, amount: number) {
     buyerId,
     type: "topup",
     amount,
-    note: "Dummy top-up",
+    note: "Wallet top-up",
     createdAt: now(),
   };
 

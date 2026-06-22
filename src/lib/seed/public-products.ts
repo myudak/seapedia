@@ -7,6 +7,7 @@ export type PublicProduct = {
   storeName: string;
   storeSlug: string;
   imageUrl: string;
+  galleryImages: string[];
   category: string;
   rating: number;
   soldCount: number;
@@ -25,6 +26,12 @@ export const publicProducts: PublicProduct[] = [
     storeName: "Pasar Pagi Studio",
     storeSlug: "pasar-pagi-studio",
     imageUrl: "/assets/products/coral-market-tote.png",
+    galleryImages: [
+      "/assets/products/coral-market-tote.png",
+      "/assets/products/gallery/coral-market-tote-side.png",
+      "/assets/products/gallery/coral-market-tote-interior.png",
+      "/assets/products/gallery/coral-market-tote-lifestyle.png",
+    ],
     category: "Fashion",
     rating: 4.8,
     soldCount: 342,
@@ -41,6 +48,12 @@ export const publicProducts: PublicProduct[] = [
     storeName: "Kedai Timur",
     storeSlug: "kedai-timur",
     imageUrl: "/assets/products/archipelago-coffee-set.png",
+    galleryImages: [
+      "/assets/products/archipelago-coffee-set.png",
+      "/assets/products/gallery/archipelago-coffee-open-box.png",
+      "/assets/products/gallery/archipelago-coffee-pouches.png",
+      "/assets/products/gallery/archipelago-coffee-bar.png",
+    ],
     category: "Food",
     rating: 4.9,
     soldCount: 511,
@@ -57,6 +70,12 @@ export const publicProducts: PublicProduct[] = [
     storeName: "Nusa Homecraft",
     storeSlug: "nusa-homecraft",
     imageUrl: "/assets/products/rattan-desk-lamp.png",
+    galleryImages: [
+      "/assets/products/rattan-desk-lamp.png",
+      "/assets/products/gallery/rattan-desk-lamp-side.png",
+      "/assets/products/gallery/rattan-desk-lamp-bedroom.png",
+      "/assets/products/gallery/rattan-desk-lamp-detail.png",
+    ],
     category: "Home",
     rating: 4.7,
     soldCount: 128,
@@ -72,6 +91,12 @@ export const publicProducts: PublicProduct[] = [
     storeName: "Lurik Lab",
     storeSlug: "lurik-lab",
     imageUrl: "/assets/products/batik-cable-organizer.png",
+    galleryImages: [
+      "/assets/products/batik-cable-organizer.png",
+      "/assets/products/gallery/batik-cable-organizer-open.png",
+      "/assets/products/gallery/batik-cable-organizer-travel.png",
+      "/assets/products/gallery/batik-cable-organizer-detail.png",
+    ],
     category: "Gadget",
     rating: 4.6,
     soldCount: 274,

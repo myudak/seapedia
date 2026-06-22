@@ -64,6 +64,7 @@ export type Product = {
   price: number;
   stock: number;
   imageUrl: string;
+  galleryImages?: string[];
   category?: string;
   rating?: number;
   soldCount?: number;

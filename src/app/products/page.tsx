@@ -125,7 +125,7 @@ export default function ProductsPage() {
           <div>
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="text-sm font-bold text-[var(--muted)]">
-                Showing {products.length} curated demo products
+                Showing {products.length} curated products
               </p>
               <p className="hidden text-sm font-black text-[var(--danger)] sm:block">
                 PPN 12% appears in checkout

@@ -1,13 +1,13 @@
 import type { Role } from "@/lib/domain/types";
 
-export type DemoAccount = {
+export type SeedAccount = {
   username: string;
   password: string;
   roles: Role[];
   note: string;
 };
 
-export const demoAccounts: DemoAccount[] = [
+export const seedAccounts: SeedAccount[] = [
   {
     username: "admin",
     password: "seapedia123",

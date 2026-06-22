@@ -18,7 +18,7 @@ type WalletTransactionRow = {
 export function BuyerWalletPanel() {
   const [balance, setBalance] = useState(650000);
   const [amount, setAmount] = useState(100000);
-  const [message, setMessage] = useState("Dummy wallet ready.");
+  const [message, setMessage] = useState("Wallet ready.");
   const [transactions, setTransactions] = useState<WalletTransactionRow[]>([]);
 
   return (
@@ -60,12 +60,12 @@ export function BuyerWalletPanel() {
                   id: crypto.randomUUID(),
                   type: "topup",
                   amount,
-                  note: "Local demo top-up",
+                  note: "Local wallet top-up",
                   createdAt: Date.now(),
                 },
                 ...current,
               ]);
-              setMessage("Demo top-up applied locally.");
+              setMessage("Top-up applied locally.");
             });
         }}
       >

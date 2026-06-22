@@ -3,7 +3,7 @@
   "info": {
     "title": "SEAPEDIA API",
     "version": "1.0.0",
-    "description": "Documented HTTP API for the SEAPEDIA marketplace demo."
+    "description": "Documented HTTP API for the SEAPEDIA marketplace application."
   },
   "servers": [{ "url": "http://localhost:3000" }],
   "paths": {
@@ -26,7 +26,7 @@
       "post": { "summary": "Create seller product" }
     },
     "/api/buyer/wallet": { "get": { "summary": "Read buyer wallet" } },
-    "/api/buyer/wallet/topup": { "post": { "summary": "Dummy wallet top-up" } },
+    "/api/buyer/wallet/topup": { "post": { "summary": "Wallet top-up" } },
     "/api/buyer/cart": { "get": { "summary": "Read cart summary" } },
     "/api/buyer/checkout": { "post": { "summary": "Create order from cart" } },
     "/api/driver/jobs": { "get": { "summary": "List available delivery jobs" } },

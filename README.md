@@ -9,6 +9,7 @@ SEAPEDIA is a fullstack marketplace challenge project for Software Engineering A
 - Next Route Handlers for `/api/*`
 - Zod validation, bcrypt password hashing, httpOnly session cookies
 - Vitest unit tests and Playwright smoke tests
+- Generated first-party storefront assets under `public/assets/*`
 
 ## Local Setup
 
@@ -30,14 +31,14 @@ pnpm convex:dev
 - `CONVEX_DEPLOYMENT`: Convex deployment name.
 - `SESSION_SECRET`: random secret with at least 32 characters.
 
-## Demo Accounts
+## Seed Accounts
 
-All demo passwords are `seapedia123`.
+All seeded account passwords are `seapedia123`.
 
 | Username | Roles | Purpose |
 | --- | --- | --- |
 | `admin` | Admin | Monitoring, discounts, time simulation, overdue handling |
-| `maya` | Buyer, Seller, Driver | Multi-role active-role selection demo |
+| `maya` | Buyer, Seller, Driver | Multi-role active-role selection |
 | `seller` | Seller | Store, products, incoming orders |
 | `buyer` | Buyer | Wallet, cart, checkout, order history |
 | `driver` | Driver | Find jobs, take jobs, complete delivery |
@@ -51,6 +52,14 @@ All demo passwords are `seapedia123`.
 - Discount rule: checkout accepts one code, either Voucher or Promo. Voucher is percentage-based with expiry and remaining usage. Promo is amount-based with expiry.
 - Driver earning is 80% of delivery fee after completion.
 - Overdue SLA: Instant same day, Next Day one day, Regular three days. Admin can simulate time and run auto return/refund.
+
+## Storefront Assets
+
+- Brand mark: `public/assets/brand/seapedia-mark.png`.
+- Homepage hero banner: `public/assets/brand/marketplace-hero.png`.
+- Seeded catalog product photos: `public/assets/products/*.png`.
+- Generated assets intentionally avoid embedded product text, fake logos, and watermarks. Product names, prices, labels, stock, ratings, and store names are rendered by the app UI for reliable display.
+- The catalog seed now uses local asset URLs and merchandising metadata for category, rating, sold count, discount labels, and featured products.
 
 ## Security Notes
 
@@ -66,7 +75,7 @@ All demo passwords are `seapedia123`.
 - In-app docs: `/docs/api`
 - OpenAPI summary: `/openapi.json`
 
-## Demo Flow
+## Seed Flow
 
 1. Browse `/products` as guest and open a product detail page.
 2. Submit an application review on the landing page.
@@ -83,5 +92,20 @@ All demo passwords are `seapedia123`.
 pnpm lint
 pnpm test
 pnpm build
+```
+
+Manual browser QA was run against `http://127.0.0.1:3000` without forcing Playwright browser installation, covering:
+
+- `/`
+- `/products`
+- `/products/prd-coral-tote`
+- `/login`
+- `/dashboard/admin`
+
+Desktop `1366x900` and mobile `390x844` viewport checks confirmed no app error text, no visible broken images, no console errors, and no horizontal overflow on the redesigned storefront pages.
+
+Optional E2E command if Playwright browsers are installed locally:
+
+```bash
 pnpm exec playwright test
 ```
