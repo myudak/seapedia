@@ -527,3 +527,9 @@ export function topUpBuyerWallet(buyerId: string, amount: number) {
   getState().walletTransactions.unshift(transaction);
   return { wallet, transaction };
 }
+
+export function listWalletTransactions(buyerId: string) {
+  return getState().walletTransactions.filter(
+    (transaction) => transaction.buyerId === buyerId,
+  );
+}

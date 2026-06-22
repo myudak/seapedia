@@ -7,10 +7,19 @@ import { Card } from "@/components/ui/card";
 import { Field, TextInput } from "@/components/ui/field";
 import { formatRupiah } from "@/lib/seed/public-products";
 
+type WalletTransactionRow = {
+  id: string;
+  type: string;
+  amount: number;
+  note: string;
+  createdAt: number;
+};
+
 export function BuyerWalletPanel() {
   const [balance, setBalance] = useState(650000);
   const [amount, setAmount] = useState(100000);
   const [message, setMessage] = useState("Dummy wallet ready.");
+  const [transactions, setTransactions] = useState<WalletTransactionRow[]>([]);
 
   return (
     <section className="grid gap-4">
@@ -35,6 +44,10 @@ export function BuyerWalletPanel() {
             .then((payload) => {
               if (payload.ok) {
                 setBalance(payload.data.wallet.balance);
+                setTransactions((current) => [
+                  payload.data.transaction,
+                  ...current,
+                ]);
                 setMessage("Top-up successful.");
               } else {
                 setMessage(payload.error);
@@ -42,6 +55,16 @@ export function BuyerWalletPanel() {
             })
             .catch(() => {
               setBalance((current) => current + amount);
+              setTransactions((current) => [
+                {
+                  id: crypto.randomUUID(),
+                  type: "topup",
+                  amount,
+                  note: "Local demo top-up",
+                  createdAt: Date.now(),
+                },
+                ...current,
+              ]);
               setMessage("Demo top-up applied locally.");
             });
         }}
@@ -58,6 +81,19 @@ export function BuyerWalletPanel() {
         </Button>
       </form>
       <p className="text-sm font-semibold text-[var(--market)]">{message}</p>
+      <div className="grid gap-2">
+        {transactions.map((transaction) => (
+          <div
+            key={transaction.id}
+            className="flex items-center justify-between rounded-md border border-[var(--line)] bg-white px-3 py-2 text-sm"
+          >
+            <span className="font-bold capitalize">{transaction.type}</span>
+            <span className="text-[var(--muted)]">
+              {formatRupiah(transaction.amount)}
+            </span>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

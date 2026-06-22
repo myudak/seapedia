@@ -1,11 +1,14 @@
-import { getBuyerWallet } from "@/lib/domain/state";
+import { getBuyerWallet, listWalletTransactions } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
 import { requireActiveRole } from "@/lib/server/auth";
 
 export async function GET() {
   try {
     const profile = await requireActiveRole("Buyer");
-    return ok(getBuyerWallet(profile.user.id));
+    return ok({
+      wallet: getBuyerWallet(profile.user.id),
+      transactions: listWalletTransactions(profile.user.id),
+    });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Buyer role required.", 403);
   }
