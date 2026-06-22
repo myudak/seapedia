@@ -21,6 +21,20 @@ export function DriverJobPanel() {
   const [jobs, setJobs] = useState<JobRow[]>([]);
   const [message, setMessage] = useState("Jobs appear after seller processing.");
 
+  function takeJob(job: JobRow) {
+    fetch(`/api/driver/jobs/${job.id}/take`, { method: "POST" })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (payload.ok) {
+          setJobs((current) => current.filter((item) => item.id !== job.id));
+          setMessage("Job taken. Order moved to Sedang Dikirim.");
+        } else {
+          setMessage(payload.error);
+        }
+      })
+      .catch(() => setMessage("Taking a job requires Driver login."));
+  }
+
   return (
     <section className="grid gap-4">
       <div className="flex items-center justify-between gap-3">
@@ -53,6 +67,14 @@ export function DriverJobPanel() {
             <p className="text-sm text-[var(--muted)]">
               {job.order?.status} - {formatRupiah(job.order?.total ?? 0)}
             </p>
+            <Button
+              type="button"
+              className="mt-3"
+              variant="secondary"
+              onClick={() => takeJob(job)}
+            >
+              Take job
+            </Button>
           </Card>
         ))}
       </div>

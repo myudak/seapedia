@@ -983,6 +983,39 @@ export function listAvailableDeliveryJobs() {
     }));
 }
 
+export function getDeliveryJob(jobId: string) {
+  const state = getState();
+  const job = state.deliveryJobs.find((item) => item.id === jobId);
+  return job
+    ? {
+        ...job,
+        order: state.orders.find((order) => order.id === job.orderId),
+      }
+    : null;
+}
+
+export function takeDeliveryJob(driverId: string, jobId: string) {
+  const state = getState();
+  const job = state.deliveryJobs.find((item) => item.id === jobId);
+
+  if (!job) {
+    throw new Error("Delivery job not found.");
+  }
+
+  const order = state.orders.find((item) => item.id === job.orderId);
+
+  if (!order || order.status !== "Menunggu Pengirim") {
+    throw new Error("Only jobs waiting for driver can be taken.");
+  }
+
+  job.driverId = driverId;
+  job.status = "taken";
+  job.updatedAt = now();
+  order.status = "Sedang Dikirim";
+  addOrderStatus(order.id, order.status, "Driver took the delivery job.");
+  return job;
+}
+
 export function getBuyerSpendingReport(buyerId: string) {
   const orders = listBuyerOrders(buyerId);
   return {
