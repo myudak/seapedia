@@ -21,7 +21,7 @@ import type {
   User,
   Wallet,
   WalletTransaction,
-  type DeliveryMethod,
+  DeliveryMethod,
 } from "./types";
 import { SESSION_TTL_MS } from "./types";
 
@@ -758,6 +758,20 @@ export function createCheckoutOrder(
   if (!product || !store) {
     throw new Error("Cart product is no longer available.");
   }
+
+  if (wallet.balance < summary.total) {
+    throw new Error("Insufficient wallet balance.");
+  }
+
+  cart.items.forEach((item) => {
+    const cartProduct = state.products.find(
+      (candidate) => candidate.id === item.productId,
+    );
+
+    if (!cartProduct || cartProduct.stock < item.quantity) {
+      throw new Error(`Insufficient stock for ${item.productName}.`);
+    }
+  });
 
   cart.items.forEach((item) => {
     const cartProduct = state.products.find(
