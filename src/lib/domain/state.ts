@@ -354,3 +354,42 @@ export function upsertSellerStore(
   state.stores.push(store);
   return store;
 }
+
+export function listSellerProducts(sellerId: string) {
+  return getState().products.filter((product) => product.sellerId === sellerId);
+}
+
+export function createSellerProduct(
+  sellerId: string,
+  input: {
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    imageUrl?: string;
+  },
+) {
+  const store = getStoreForSeller(sellerId);
+
+  if (!store) {
+    throw new Error("Create a store before adding products.");
+  }
+
+  const product: Product = {
+    id: randomUUID(),
+    sellerId,
+    storeId: store.id,
+    name: publicText(input.name, 100),
+    description: publicText(input.description, 500),
+    price: input.price,
+    stock: input.stock,
+    imageUrl:
+      input.imageUrl?.trim() ||
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
+    createdAt: now(),
+    updatedAt: now(),
+  };
+
+  getState().products.push(product);
+  return product;
+}
