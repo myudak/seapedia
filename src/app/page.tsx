@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ReviewsSection } from "@/components/reviews-section";
 
 const stats = [
   ["4 roles", "Buyer, Seller, Driver, Admin"],
@@ -85,6 +86,7 @@ export default function Home() {
             })}
           </div>
         </section>
+        <ReviewsSection />
       </main>
     </AppShell>
   );
