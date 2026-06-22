@@ -19,6 +19,8 @@ import type {
   Session,
   StoreProfile,
   User,
+  Promo,
+  Voucher,
   Wallet,
   WalletTransaction,
   DeliveryMethod,
@@ -37,6 +39,8 @@ type AppState = {
   cartItems: CartItem[];
   orders: Order[];
   orderStatusHistory: OrderStatusEntry[];
+  vouchers: Voucher[];
+  promos: Promo[];
 };
 
 declare global {
@@ -155,6 +159,25 @@ function createInitialState(): AppState {
     cartItems: [],
     orders: [],
     orderStatusHistory: [],
+    vouchers: [
+      {
+        id: randomUUID(),
+        code: "HEMAT12",
+        percentOff: 12,
+        remainingUsage: 10,
+        expiresAt: now() + 7 * 86_400_000,
+        createdAt: now(),
+      },
+    ],
+    promos: [
+      {
+        id: randomUUID(),
+        code: "ONGKIR8K",
+        amountOff: 8000,
+        expiresAt: now() + 5 * 86_400_000,
+        createdAt: now(),
+      },
+    ],
   };
 }
 
@@ -846,4 +869,46 @@ export function getOrderForParticipant(userId: string, orderId: string) {
       (entry) => entry.orderId === orderId,
     ),
   };
+}
+
+export function listVouchers() {
+  return getState().vouchers;
+}
+
+export function listPromos() {
+  return getState().promos;
+}
+
+export function createVoucher(input: {
+  code: string;
+  percentOff: number;
+  remainingUsage: number;
+  expiresAt: number;
+}) {
+  const voucher: Voucher = {
+    id: randomUUID(),
+    code: input.code.trim().toUpperCase(),
+    percentOff: input.percentOff,
+    remainingUsage: input.remainingUsage,
+    expiresAt: input.expiresAt,
+    createdAt: now(),
+  };
+  getState().vouchers.unshift(voucher);
+  return voucher;
+}
+
+export function createPromo(input: {
+  code: string;
+  amountOff: number;
+  expiresAt: number;
+}) {
+  const promo: Promo = {
+    id: randomUUID(),
+    code: input.code.trim().toUpperCase(),
+    amountOff: input.amountOff,
+    expiresAt: input.expiresAt,
+    createdAt: now(),
+  };
+  getState().promos.unshift(promo);
+  return promo;
 }

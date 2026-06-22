@@ -175,5 +175,22 @@ export type OrderStatusEntry = {
   createdAt: number;
 };
 
+export type Voucher = {
+  id: string;
+  code: string;
+  percentOff: number;
+  remainingUsage: number;
+  expiresAt: number;
+  createdAt: number;
+};
+
+export type Promo = {
+  id: string;
+  code: string;
+  amountOff: number;
+  expiresAt: number;
+  createdAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
