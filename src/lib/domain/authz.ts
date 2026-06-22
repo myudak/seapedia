@@ -23,3 +23,9 @@ export function assertActiveRole(profile: AuthProfile | null, role: Role) {
 export function roleDashboard(role: Role) {
   return `/dashboard/${role.toLowerCase()}`;
 }
+
+export function assertOwner(ownerId: string, actorId: string, message: string) {
+  if (ownerId !== actorId) {
+    throw new Error(message);
+  }
+}
