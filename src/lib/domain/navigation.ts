@@ -1,6 +1,6 @@
 export const publicNavItems = [
-  { href: "/products", label: "Catalog" },
+  { href: "/products", label: "Shop" },
   { href: "/#reviews", label: "Reviews" },
-  { href: "/dashboard", label: "Dashboards" },
-  { href: "/docs/api", label: "API Docs" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/docs/api", label: "API" },
 ];
