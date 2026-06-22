@@ -64,6 +64,11 @@ export type Product = {
   price: number;
   stock: number;
   imageUrl: string;
+  category?: string;
+  rating?: number;
+  soldCount?: number;
+  discountLabel?: string;
+  featured?: boolean;
   createdAt: number;
   updatedAt: number;
 };

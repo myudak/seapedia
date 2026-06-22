@@ -3,6 +3,7 @@ import { createHash, randomUUID } from "crypto";
 import { nanoid } from "nanoid";
 import { calculateCheckoutSummary } from "./commerce";
 import { deliverySlaDays } from "./commerce";
+import { publicProducts } from "../seed/public-products";
 import type {
   AppReview,
   AuthProfile,
@@ -114,22 +115,10 @@ function createInitialState(): AppState {
     ],
     stores: [firstStore, secondStore],
     products: [
-      seedProduct("prd-coral-tote", firstStore, "Coral Market Tote", 129000, 18),
-      seedProduct(
-        "prd-archipelago-coffee",
-        secondStore,
-        "Archipelago Coffee Set",
-        185000,
-        26,
-      ),
-      seedProduct("prd-rattan-lamp", firstStore, "Rattan Desk Lamp", 249000, 9),
-      seedProduct(
-        "prd-batik-organizer",
-        secondStore,
-        "Batik Cable Organizer",
-        79000,
-        31,
-      ),
+      seedProduct("prd-coral-tote", firstStore),
+      seedProduct("prd-archipelago-coffee", secondStore),
+      seedProduct("prd-rattan-lamp", firstStore),
+      seedProduct("prd-batik-organizer", secondStore),
     ],
     wallets: [
       {
@@ -208,20 +197,27 @@ function seedStore(sellerId: string, name: string): StoreProfile {
 function seedProduct(
   id: string,
   store: StoreProfile,
-  name: string,
-  price: number,
-  stock: number,
 ): Product {
+  const catalogProduct = publicProducts.find((product) => product.id === id);
+
+  if (!catalogProduct) {
+    throw new Error(`Missing seeded catalog product ${id}.`);
+  }
+
   return {
     id,
     storeId: store.id,
     sellerId: store.sellerId,
-    name,
-    description: `${name} from ${store.name}, available for the public catalog.`,
-    price,
-    stock,
-    imageUrl:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+    name: catalogProduct.name,
+    description: catalogProduct.description,
+    price: catalogProduct.price,
+    stock: catalogProduct.stock,
+    imageUrl: catalogProduct.imageUrl,
+    category: catalogProduct.category,
+    rating: catalogProduct.rating,
+    soldCount: catalogProduct.soldCount,
+    discountLabel: catalogProduct.discountLabel,
+    featured: catalogProduct.featured,
     createdAt: now(),
     updatedAt: now(),
   };
@@ -483,7 +479,7 @@ export function createSellerProduct(
     stock: input.stock,
     imageUrl:
       input.imageUrl?.trim() ||
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
+      "/assets/brand/marketplace-hero.png",
     createdAt: now(),
     updatedAt: now(),
   };

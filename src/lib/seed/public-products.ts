@@ -7,6 +7,11 @@ export type PublicProduct = {
   storeName: string;
   storeSlug: string;
   imageUrl: string;
+  category: string;
+  rating: number;
+  soldCount: number;
+  discountLabel?: string;
+  featured?: boolean;
 };
 
 export const publicProducts: PublicProduct[] = [
@@ -14,49 +19,63 @@ export const publicProducts: PublicProduct[] = [
     id: "prd-coral-tote",
     name: "Coral Market Tote",
     description:
-      "Water-resistant daily tote made for Jakarta commutes and weekend groceries.",
+      "Water-resistant daily tote with reinforced handles for Jakarta commutes and weekend errands.",
     price: 129000,
     stock: 18,
     storeName: "Pasar Pagi Studio",
     storeSlug: "pasar-pagi-studio",
-    imageUrl:
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/assets/products/coral-market-tote.png",
+    category: "Fashion",
+    rating: 4.8,
+    soldCount: 342,
+    discountLabel: "Flash -10%",
+    featured: true,
   },
   {
     id: "prd-archipelago-coffee",
     name: "Archipelago Coffee Set",
     description:
-      "Three-origin tasting box with beans from Aceh, Toraja, and Flores.",
+      "Three-origin tasting box with sealed pouches, ceramic cup, and a gift-ready sleeve.",
     price: 185000,
     stock: 26,
     storeName: "Kedai Timur",
     storeSlug: "kedai-timur",
-    imageUrl:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/assets/products/archipelago-coffee-set.png",
+    category: "Food",
+    rating: 4.9,
+    soldCount: 511,
+    discountLabel: "Bundle",
+    featured: true,
   },
   {
     id: "prd-rattan-lamp",
     name: "Rattan Desk Lamp",
     description:
-      "Compact woven lamp with a warm diffuser for bedrooms and small studios.",
+      "Compact woven rattan lamp with a warm diffuser for bedrooms, desks, and small studios.",
     price: 249000,
     stock: 9,
     storeName: "Nusa Homecraft",
     storeSlug: "nusa-homecraft",
-    imageUrl:
-      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/assets/products/rattan-desk-lamp.png",
+    category: "Home",
+    rating: 4.7,
+    soldCount: 128,
+    discountLabel: "Limited",
   },
   {
     id: "prd-batik-organizer",
     name: "Batik Cable Organizer",
     description:
-      "Small leather organizer with batik lining for chargers and travel cables.",
+      "Leather tech pouch with batik lining for chargers, earbuds, and travel cables.",
     price: 79000,
     stock: 31,
     storeName: "Lurik Lab",
     storeSlug: "lurik-lab",
-    imageUrl:
-      "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/assets/products/batik-cable-organizer.png",
+    category: "Gadget",
+    rating: 4.6,
+    soldCount: 274,
+    discountLabel: "Best Deal",
   },
 ];
 
