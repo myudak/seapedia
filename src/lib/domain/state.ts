@@ -395,7 +395,7 @@ export function createSellerProduct(
 }
 
 export function updateSellerProduct(
-  _sellerId: string,
+  sellerId: string,
   productId: string,
   input: Partial<{
     name: string;
@@ -409,6 +409,10 @@ export function updateSellerProduct(
 
   if (!product) {
     throw new Error("Product not found.");
+  }
+
+  if (product.sellerId !== sellerId) {
+    throw new Error("Product does not belong to this seller.");
   }
 
   if (input.name !== undefined) {
@@ -431,7 +435,7 @@ export function updateSellerProduct(
   return product;
 }
 
-export function deleteSellerProduct(_sellerId: string, productId: string) {
+export function deleteSellerProduct(sellerId: string, productId: string) {
   const state = getState();
   const index = state.products.findIndex((item) => item.id === productId);
 
@@ -439,6 +443,12 @@ export function deleteSellerProduct(_sellerId: string, productId: string) {
     throw new Error("Product not found.");
   }
 
-  const [deleted] = state.products.splice(index, 1);
+  const [deleted] = state.products.slice(index, index + 1);
+
+  if (deleted.sellerId !== sellerId) {
+    throw new Error("Product does not belong to this seller.");
+  }
+
+  state.products.splice(index, 1);
   return deleted;
 }
