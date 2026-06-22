@@ -2,6 +2,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { AdminMonitoringPanel } from "@/components/admin-monitoring-panel";
 import { AdminDiscountPanel } from "@/components/admin-discount-panel";
 import { AdminTimePanel } from "@/components/admin-time-panel";
+import { AdminOverduePanel } from "@/components/admin-overdue-panel";
 
 export default function AdminDashboardPage() {
   return (
@@ -13,6 +14,7 @@ export default function AdminDashboardPage() {
       <AdminMonitoringPanel />
       <AdminDiscountPanel />
       <AdminTimePanel />
+      <AdminOverduePanel />
     </DashboardShell>
   );
 }
