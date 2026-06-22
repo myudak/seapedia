@@ -944,6 +944,32 @@ export function processSellerOrder(sellerId: string, orderId: string) {
   return order;
 }
 
+export function getBuyerSpendingReport(buyerId: string) {
+  const orders = listBuyerOrders(buyerId);
+  return {
+    orderCount: orders.length,
+    subtotal: orders.reduce((sum, order) => sum + order.subtotal, 0),
+    discount: orders.reduce((sum, order) => sum + order.discount, 0),
+    deliveryFee: orders.reduce((sum, order) => sum + order.deliveryFee, 0),
+    ppn: orders.reduce((sum, order) => sum + order.ppn, 0),
+    total: orders.reduce((sum, order) => sum + order.total, 0),
+  };
+}
+
+export function getSellerIncomeReport(sellerId: string) {
+  const orders = listSellerOrders(sellerId).filter(
+    (order) => order.status !== "Dikembalikan",
+  );
+  return {
+    orderCount: orders.length,
+    subtotal: orders.reduce((sum, order) => sum + order.subtotal, 0),
+    discount: orders.reduce((sum, order) => sum + order.discount, 0),
+    deliveryFee: orders.reduce((sum, order) => sum + order.deliveryFee, 0),
+    ppn: orders.reduce((sum, order) => sum + order.ppn, 0),
+    income: orders.reduce((sum, order) => sum + order.subtotal - order.discount, 0),
+  };
+}
+
 export function listVouchers() {
   return getState().vouchers;
 }
