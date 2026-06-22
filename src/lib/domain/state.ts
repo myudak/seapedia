@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { createHash, randomUUID } from "crypto";
 import { nanoid } from "nanoid";
+import { calculateCheckoutSummary } from "./commerce";
 import type {
   AppReview,
   AuthProfile,
@@ -16,6 +17,7 @@ import type {
   User,
   Wallet,
   WalletTransaction,
+  type DeliveryMethod,
 } from "./types";
 import { SESSION_TTL_MS } from "./types";
 
@@ -701,4 +703,23 @@ export function removeCartItem(buyerId: string, itemId: string) {
 
   const [deleted] = state.cartItems.splice(index, 1);
   return deleted;
+}
+
+export function previewCheckout(
+  buyerId: string,
+  deliveryMethod: DeliveryMethod,
+) {
+  const cart = getCartSummary(buyerId);
+
+  if (cart.items.length === 0) {
+    throw new Error("Cart is empty.");
+  }
+
+  return {
+    cart,
+    summary: calculateCheckoutSummary({
+      subtotal: cart.subtotal,
+      deliveryMethod,
+    }),
+  };
 }

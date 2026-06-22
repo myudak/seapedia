@@ -122,5 +122,18 @@ export type CartSummary = {
   subtotal: number;
 };
 
+export const deliveryMethods = ["Instant", "Next Day", "Regular"] as const;
+
+export type DeliveryMethod = (typeof deliveryMethods)[number];
+
+export type CheckoutSummary = {
+  subtotal: number;
+  discount: number;
+  deliveryFee: number;
+  ppn: number;
+  total: number;
+  deliveryMethod: DeliveryMethod;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
