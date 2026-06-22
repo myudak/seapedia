@@ -117,13 +117,47 @@ export async function loginUser(username: string, password: string) {
     id: randomUUID(),
     userId: user.id,
     tokenHash: hashToken(token),
-    activeRole: user.roles[0],
+    activeRole:
+      user.roles.length === 1 || user.roles.includes("Admin")
+        ? user.roles[0]
+        : undefined,
     expiresAt: now() + SESSION_TTL_MS,
     createdAt: now(),
   };
 
   state.sessions.push(session);
   return { token, profile: profileFor(user, session) };
+}
+
+export function chooseActiveRole(token: string | undefined | null, role: Role) {
+  if (!token) {
+    throw new Error("Authentication required.");
+  }
+
+  const state = getState();
+  const session = state.sessions.find(
+    (item) =>
+      item.tokenHash === hashToken(token) &&
+      !item.revokedAt &&
+      item.expiresAt > now(),
+  );
+
+  if (!session) {
+    throw new Error("Session is no longer valid.");
+  }
+
+  const user = state.users.find((item) => item.id === session.userId);
+
+  if (!user || !user.roles.includes(role)) {
+    throw new Error("Role is not owned by this user.");
+  }
+
+  if (role === "Admin" && !user.roles.includes("Admin")) {
+    throw new Error("Admin role is not available.");
+  }
+
+  session.activeRole = role;
+  return profileFor(user, session);
 }
 
 export function profileFor(user: User, session: Session): AuthProfile {
