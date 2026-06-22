@@ -1,4 +1,5 @@
 import { DashboardShell } from "@/components/dashboard-shell";
+import { SellerStorePanel } from "@/components/seller-store-panel";
 
 export default function SellerDashboardPage() {
   return (
@@ -7,9 +8,7 @@ export default function SellerDashboardPage() {
       title="Seller Dashboard"
       subtitle="Store profile, product management, incoming orders, and income summaries live here."
     >
-      <p className="text-[var(--muted)]">
-        Seller features are introduced progressively in Level 2 and Level 4.
-      </p>
+      <SellerStorePanel />
     </DashboardShell>
   );
 }
