@@ -1,5 +1,6 @@
 import { DashboardShell } from "@/components/dashboard-shell";
 import { BuyerAddressPanel } from "@/components/buyer-address-panel";
+import { BuyerCartPanel } from "@/components/buyer-cart-panel";
 import { BuyerWalletPanel } from "@/components/buyer-wallet-panel";
 
 export default function BuyerDashboardPage() {
@@ -11,6 +12,7 @@ export default function BuyerDashboardPage() {
     >
       <BuyerWalletPanel />
       <BuyerAddressPanel />
+      <BuyerCartPanel />
     </DashboardShell>
   );
 }

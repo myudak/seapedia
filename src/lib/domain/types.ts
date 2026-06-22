@@ -100,5 +100,27 @@ export type DeliveryAddress = {
   createdAt: number;
 };
 
+export type CartItem = {
+  id: string;
+  buyerId: string;
+  storeId: string;
+  productId: string;
+  quantity: number;
+  updatedAt: number;
+};
+
+export type CartSummary = {
+  storeId?: string;
+  storeName?: string;
+  items: Array<
+    CartItem & {
+      productName: string;
+      price: number;
+      lineTotal: number;
+    }
+  >;
+  subtotal: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

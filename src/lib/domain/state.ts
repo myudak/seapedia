@@ -4,6 +4,8 @@ import { nanoid } from "nanoid";
 import type {
   AppReview,
   AuthProfile,
+  CartItem,
+  CartSummary,
   CatalogProduct,
   DeliveryAddress,
   Product,
@@ -26,6 +28,7 @@ type AppState = {
   wallets: Wallet[];
   walletTransactions: WalletTransaction[];
   addresses: DeliveryAddress[];
+  cartItems: CartItem[];
 };
 
 declare global {
@@ -127,6 +130,7 @@ function createInitialState(): AppState {
         createdAt: now(),
       },
     ],
+    cartItems: [],
   };
 }
 
@@ -585,4 +589,94 @@ export function createBuyerAddress(
 
   state.addresses.push(address);
   return address;
+}
+
+export function getCartSummary(buyerId: string): CartSummary {
+  const state = getState();
+  const items = state.cartItems
+    .filter((item) => item.buyerId === buyerId)
+    .map((item) => {
+      const product = state.products.find((candidate) => candidate.id === item.productId);
+      return {
+        ...item,
+        productName: product?.name ?? "Unknown product",
+        price: product?.price ?? 0,
+        lineTotal: (product?.price ?? 0) * item.quantity,
+      };
+    });
+  const store = state.stores.find((candidate) => candidate.id === items[0]?.storeId);
+
+  return {
+    storeId: store?.id,
+    storeName: store?.name,
+    items,
+    subtotal: items.reduce((sum, item) => sum + item.lineTotal, 0),
+  };
+}
+
+export function addCartItem(
+  buyerId: string,
+  productId: string,
+  quantity: number,
+) {
+  const state = getState();
+  const product = state.products.find((item) => item.id === productId);
+
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  const existing = state.cartItems.find(
+    (item) => item.buyerId === buyerId && item.productId === productId,
+  );
+
+  if (existing) {
+    existing.quantity += quantity;
+    existing.updatedAt = now();
+    return existing;
+  }
+
+  const item: CartItem = {
+    id: randomUUID(),
+    buyerId,
+    storeId: product.storeId,
+    productId,
+    quantity,
+    updatedAt: now(),
+  };
+
+  state.cartItems.push(item);
+  return item;
+}
+
+export function updateCartItem(
+  buyerId: string,
+  itemId: string,
+  quantity: number,
+) {
+  const item = getState().cartItems.find(
+    (candidate) => candidate.id === itemId && candidate.buyerId === buyerId,
+  );
+
+  if (!item) {
+    throw new Error("Cart item not found.");
+  }
+
+  item.quantity = quantity;
+  item.updatedAt = now();
+  return item;
+}
+
+export function removeCartItem(buyerId: string, itemId: string) {
+  const state = getState();
+  const index = state.cartItems.findIndex(
+    (item) => item.id === itemId && item.buyerId === buyerId,
+  );
+
+  if (index === -1) {
+    throw new Error("Cart item not found.");
+  }
+
+  const [deleted] = state.cartItems.splice(index, 1);
+  return deleted;
 }
