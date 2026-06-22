@@ -1,4 +1,5 @@
 import { DashboardShell } from "@/components/dashboard-shell";
+import { BuyerWalletPanel } from "@/components/buyer-wallet-panel";
 
 export default function BuyerDashboardPage() {
   return (
@@ -7,9 +8,7 @@ export default function BuyerDashboardPage() {
       title="Buyer Dashboard"
       subtitle="Wallet, delivery address, cart, checkout, and order history live here."
     >
-      <p className="text-[var(--muted)]">
-        Buyer features are introduced progressively in Level 3.
-      </p>
+      <BuyerWalletPanel />
     </DashboardShell>
   );
 }

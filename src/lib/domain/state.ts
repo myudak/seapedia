@@ -11,6 +11,8 @@ import type {
   Session,
   StoreProfile,
   User,
+  Wallet,
+  WalletTransaction,
 } from "./types";
 import { SESSION_TTL_MS } from "./types";
 
@@ -20,6 +22,8 @@ type AppState = {
   appReviews: AppReview[];
   stores: StoreProfile[];
   products: Product[];
+  wallets: Wallet[];
+  walletTransactions: WalletTransaction[];
 };
 
 declare global {
@@ -94,6 +98,21 @@ function createInitialState(): AppState {
       seedProduct(firstStore, "Coral Market Tote", 129000, 18),
       seedProduct(secondStore, "Archipelago Coffee Set", 185000, 26),
     ],
+    wallets: [
+      {
+        id: randomUUID(),
+        buyerId: buyer.id,
+        balance: 650000,
+        updatedAt: now(),
+      },
+      {
+        id: randomUUID(),
+        buyerId: maya.id,
+        balance: 850000,
+        updatedAt: now(),
+      },
+    ],
+    walletTransactions: [],
   };
 }
 
@@ -468,4 +487,43 @@ export function listCatalogProducts(): CatalogProduct[] {
 
 export function getCatalogProduct(productId: string) {
   return listCatalogProducts().find((product) => product.id === productId) ?? null;
+}
+
+export function getBuyerWallet(buyerId: string) {
+  const state = getState();
+  let wallet = state.wallets.find((item) => item.buyerId === buyerId);
+
+  if (!wallet) {
+    wallet = {
+      id: randomUUID(),
+      buyerId,
+      balance: 0,
+      updatedAt: now(),
+    };
+    state.wallets.push(wallet);
+  }
+
+  return wallet;
+}
+
+export function topUpBuyerWallet(buyerId: string, amount: number) {
+  if (amount <= 0) {
+    throw new Error("Top up amount must be positive.");
+  }
+
+  const wallet = getBuyerWallet(buyerId);
+  wallet.balance += amount;
+  wallet.updatedAt = now();
+
+  const transaction: WalletTransaction = {
+    id: randomUUID(),
+    buyerId,
+    type: "topup",
+    amount,
+    note: "Dummy top-up",
+    createdAt: now(),
+  };
+
+  getState().walletTransactions.unshift(transaction);
+  return { wallet, transaction };
 }

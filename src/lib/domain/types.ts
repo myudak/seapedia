@@ -73,5 +73,21 @@ export type CatalogProduct = Product & {
   storeSlug: string;
 };
 
+export type Wallet = {
+  id: string;
+  buyerId: string;
+  balance: number;
+  updatedAt: number;
+};
+
+export type WalletTransaction = {
+  id: string;
+  buyerId: string;
+  type: "topup" | "checkout" | "refund";
+  amount: number;
+  note: string;
+  createdAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
