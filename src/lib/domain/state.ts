@@ -1,12 +1,20 @@
 import bcrypt from "bcryptjs";
 import { createHash, randomUUID } from "crypto";
 import { nanoid } from "nanoid";
-import type { AuthProfile, PublicUser, Role, Session, User } from "./types";
+import type {
+  AppReview,
+  AuthProfile,
+  PublicUser,
+  Role,
+  Session,
+  User,
+} from "./types";
 import { SESSION_TTL_MS } from "./types";
 
 type AppState = {
   users: User[];
   sessions: Session[];
+  appReviews: AppReview[];
 };
 
 declare global {
@@ -53,6 +61,23 @@ function createInitialState(): AppState {
       seedUser("driver", "Rafi Driver", "driver@seapedia.test", ["Driver"]),
     ],
     sessions: [],
+    appReviews: [
+      {
+        id: randomUUID(),
+        reviewerName: "Dina",
+        rating: 5,
+        comment:
+          "Role flow is clear, and the marketplace feels ready for a demo.",
+        createdAt: now() - 86_400_000,
+      },
+      {
+        id: randomUUID(),
+        reviewerName: "Raka",
+        rating: 4,
+        comment: "Catalog is easy to scan even before logging in.",
+        createdAt: now() - 43_200_000,
+      },
+    ],
   };
 }
 
@@ -204,4 +229,29 @@ export function logoutToken(token?: string | null) {
   if (session && !session.revokedAt) {
     session.revokedAt = now();
   }
+}
+
+function publicText(value: string, maxLength: number) {
+  return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+export function listAppReviews() {
+  return [...getState().appReviews].sort((left, right) => right.createdAt - left.createdAt);
+}
+
+export function createAppReview(input: {
+  reviewerName: string;
+  rating: number;
+  comment: string;
+}) {
+  const review: AppReview = {
+    id: randomUUID(),
+    reviewerName: publicText(input.reviewerName, 60),
+    rating: input.rating,
+    comment: publicText(input.comment, 500),
+    createdAt: now(),
+  };
+
+  getState().appReviews.unshift(review);
+  return review;
 }

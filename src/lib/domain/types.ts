@@ -37,5 +37,13 @@ export type AuthProfile = {
   needsRoleSelection: boolean;
 };
 
+export type AppReview = {
+  id: string;
+  reviewerName: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

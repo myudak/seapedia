@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageSquare, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, SelectInput, TextInput } from "@/components/ui/field";
 
 type Review = {
+  id?: string;
   reviewerName: string;
   rating: number;
   comment: string;
+  createdAt?: number;
 };
 
 const initialReviews: Review[] = [
@@ -31,6 +33,23 @@ export function ReviewsSection() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
+  useEffect(() => {
+    let mounted = true;
+
+    fetch("/api/reviews")
+      .then((response) => response.json())
+      .then((payload) => {
+        if (mounted && payload.ok) {
+          setReviews(payload.data);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6" id="reviews">
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -44,13 +63,21 @@ export function ReviewsSection() {
             className="mt-6 grid gap-4"
             onSubmit={(event) => {
               event.preventDefault();
-              setReviews((current) => [
-                { reviewerName, rating, comment },
-                ...current,
-              ]);
-              setReviewerName("");
-              setRating(5);
-              setComment("");
+              fetch("/api/reviews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reviewerName, rating, comment }),
+              })
+                .then((response) => response.json())
+                .then((payload) => {
+                  if (payload.ok) {
+                    setReviews((current) => [payload.data, ...current]);
+                    setReviewerName("");
+                    setRating(5);
+                    setComment("");
+                  }
+                })
+                .catch(() => undefined);
             }}
           >
             <Field label="Reviewer name">
@@ -85,7 +112,7 @@ export function ReviewsSection() {
 
         <div className="grid gap-4">
           {reviews.map((review, index) => (
-            <Card key={`${review.reviewerName}-${index}`} className="p-5">
+            <Card key={review.id ?? `${review.reviewerName}-${index}`} className="p-5">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-black">{review.reviewerName}</h3>
                 <span className="flex items-center gap-1 text-sm font-black text-[var(--gold)]">
