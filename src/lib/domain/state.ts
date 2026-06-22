@@ -926,6 +926,24 @@ export function getOrderForParticipant(userId: string, orderId: string) {
   };
 }
 
+export function processSellerOrder(sellerId: string, orderId: string) {
+  const order = getState().orders.find(
+    (item) => item.id === orderId && item.sellerId === sellerId,
+  );
+
+  if (!order) {
+    throw new Error("Order not found.");
+  }
+
+  if (order.status !== "Sedang Dikemas") {
+    throw new Error("Only orders in Sedang Dikemas can be processed.");
+  }
+
+  order.status = "Menunggu Pengirim";
+  addOrderStatus(order.id, order.status, "Seller processed the order.");
+  return order;
+}
+
 export function listVouchers() {
   return getState().vouchers;
 }

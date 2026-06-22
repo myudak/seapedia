@@ -17,6 +17,22 @@ export function SellerOrderPanel() {
   const [orders, setOrders] = useState<SellerOrderRow[]>([]);
   const [message, setMessage] = useState("Incoming orders appear after checkout.");
 
+  function processOrder(order: SellerOrderRow) {
+    fetch(`/api/seller/orders/${order.id}/process`, { method: "POST" })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (payload.ok) {
+          setOrders((current) =>
+            current.map((item) => (item.id === order.id ? payload.data : item)),
+          );
+          setMessage("Order moved to Menunggu Pengirim.");
+        } else {
+          setMessage(payload.error);
+        }
+      })
+      .catch(() => setMessage("Processing requires Seller login."));
+  }
+
   return (
     <section className="mt-8 grid gap-4">
       <div className="flex items-center justify-between gap-3">
@@ -49,6 +65,14 @@ export function SellerOrderPanel() {
             <p className="text-sm text-[var(--muted)]">
               {order.items.length} item(s) - {formatRupiah(order.total)}
             </p>
+            <Button
+              className="mt-3"
+              type="button"
+              variant="secondary"
+              onClick={() => processOrder(order)}
+            >
+              Process order
+            </Button>
           </Card>
         ))}
       </div>
