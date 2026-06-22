@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,17 +9,13 @@ export function AdminTimePanel() {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
   const [message, setMessage] = useState("Simulate next day for overdue demos.");
 
-  useEffect(() => {
-    setCurrentTime(Date.now());
-  }, []);
-
   return (
     <section className="mt-8 grid gap-4">
       <h2 className="text-2xl font-black">Time Simulation</h2>
       <Card className="p-4">
         <p className="text-sm text-[var(--muted)]">Current demo time</p>
         <p className="mt-1 font-black">
-          {currentTime ? new Date(currentTime).toLocaleString() : "Not loaded yet"}
+          {currentTime ? new Date(currentTime).toLocaleString() : "Not simulated yet"}
         </p>
       </Card>
       <Button
