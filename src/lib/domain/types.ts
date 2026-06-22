@@ -89,5 +89,16 @@ export type WalletTransaction = {
   createdAt: number;
 };
 
+export type DeliveryAddress = {
+  id: string;
+  buyerId: string;
+  label: string;
+  recipient: string;
+  phone: string;
+  fullAddress: string;
+  isDefault: boolean;
+  createdAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

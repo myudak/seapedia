@@ -5,6 +5,7 @@ import type {
   AppReview,
   AuthProfile,
   CatalogProduct,
+  DeliveryAddress,
   Product,
   PublicUser,
   Role,
@@ -24,6 +25,7 @@ type AppState = {
   products: Product[];
   wallets: Wallet[];
   walletTransactions: WalletTransaction[];
+  addresses: DeliveryAddress[];
 };
 
 declare global {
@@ -113,6 +115,18 @@ function createInitialState(): AppState {
       },
     ],
     walletTransactions: [],
+    addresses: [
+      {
+        id: randomUUID(),
+        buyerId: buyer.id,
+        label: "Home",
+        recipient: "Nadia Buyer",
+        phone: "081234567890",
+        fullAddress: "Jl. Merdeka No. 18, Jakarta",
+        isDefault: true,
+        createdAt: now(),
+      },
+    ],
   };
 }
 
@@ -532,4 +546,43 @@ export function listWalletTransactions(buyerId: string) {
   return getState().walletTransactions.filter(
     (transaction) => transaction.buyerId === buyerId,
   );
+}
+
+export function listBuyerAddresses(buyerId: string) {
+  return getState().addresses.filter((address) => address.buyerId === buyerId);
+}
+
+export function createBuyerAddress(
+  buyerId: string,
+  input: {
+    label: string;
+    recipient: string;
+    phone: string;
+    fullAddress: string;
+    isDefault?: boolean;
+  },
+) {
+  const state = getState();
+
+  if (input.isDefault) {
+    state.addresses
+      .filter((address) => address.buyerId === buyerId)
+      .forEach((address) => {
+        address.isDefault = false;
+      });
+  }
+
+  const address: DeliveryAddress = {
+    id: randomUUID(),
+    buyerId,
+    label: publicText(input.label, 60),
+    recipient: publicText(input.recipient, 80),
+    phone: publicText(input.phone, 24),
+    fullAddress: publicText(input.fullAddress, 240),
+    isDefault: input.isDefault ?? listBuyerAddresses(buyerId).length === 0,
+    createdAt: now(),
+  };
+
+  state.addresses.push(address);
+  return address;
 }
