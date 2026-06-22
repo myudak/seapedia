@@ -45,5 +45,28 @@ export type AppReview = {
   createdAt: number;
 };
 
+export type StoreProfile = {
+  id: string;
+  sellerId: string;
+  name: string;
+  slug: string;
+  description: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
+export type Product = {
+  id: string;
+  storeId: string;
+  sellerId: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  imageUrl: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
 export const SESSION_COOKIE = "seapedia_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;

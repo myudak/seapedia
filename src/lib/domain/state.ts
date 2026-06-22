@@ -4,9 +4,11 @@ import { nanoid } from "nanoid";
 import type {
   AppReview,
   AuthProfile,
+  Product,
   PublicUser,
   Role,
   Session,
+  StoreProfile,
   User,
 } from "./types";
 import { SESSION_TTL_MS } from "./types";
@@ -15,6 +17,8 @@ type AppState = {
   users: User[];
   sessions: Session[];
   appReviews: AppReview[];
+  stores: StoreProfile[];
+  products: Product[];
 };
 
 declare global {
@@ -48,18 +52,24 @@ function seedUser(
 }
 
 function createInitialState(): AppState {
+  const admin = seedUser("admin", "Admin Raya", "admin@seapedia.test", ["Admin"]);
+  const maya = seedUser("maya", "Maya Multirole", "maya@seapedia.test", [
+    "Buyer",
+    "Seller",
+    "Driver",
+  ]);
+  const seller = seedUser("seller", "Bima Seller", "seller@seapedia.test", [
+    "Seller",
+  ]);
+  const buyer = seedUser("buyer", "Nadia Buyer", "buyer@seapedia.test", ["Buyer"]);
+  const driver = seedUser("driver", "Rafi Driver", "driver@seapedia.test", [
+    "Driver",
+  ]);
+  const firstStore = seedStore(seller.id, "Pasar Pagi Studio");
+  const secondStore = seedStore(maya.id, "Kedai Timur");
+
   return {
-    users: [
-      seedUser("admin", "Admin Raya", "admin@seapedia.test", ["Admin"]),
-      seedUser("maya", "Maya Multirole", "maya@seapedia.test", [
-        "Buyer",
-        "Seller",
-        "Driver",
-      ]),
-      seedUser("seller", "Bima Seller", "seller@seapedia.test", ["Seller"]),
-      seedUser("buyer", "Nadia Buyer", "buyer@seapedia.test", ["Buyer"]),
-      seedUser("driver", "Rafi Driver", "driver@seapedia.test", ["Driver"]),
-    ],
+    users: [admin, maya, seller, buyer, driver],
     sessions: [],
     appReviews: [
       {
@@ -78,6 +88,52 @@ function createInitialState(): AppState {
         createdAt: now() - 43_200_000,
       },
     ],
+    stores: [firstStore, secondStore],
+    products: [
+      seedProduct(firstStore, "Coral Market Tote", 129000, 18),
+      seedProduct(secondStore, "Archipelago Coffee Set", 185000, 26),
+    ],
+  };
+}
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function seedStore(sellerId: string, name: string): StoreProfile {
+  return {
+    id: randomUUID(),
+    sellerId,
+    name,
+    slug: slugify(name),
+    description: `${name} brings curated Indonesian marketplace goods to SEAPEDIA.`,
+    createdAt: now(),
+    updatedAt: now(),
+  };
+}
+
+function seedProduct(
+  store: StoreProfile,
+  name: string,
+  price: number,
+  stock: number,
+): Product {
+  return {
+    id: randomUUID(),
+    storeId: store.id,
+    sellerId: store.sellerId,
+    name,
+    description: `${name} from ${store.name}, available for the public catalog.`,
+    price,
+    stock,
+    imageUrl:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+    createdAt: now(),
+    updatedAt: now(),
   };
 }
 
@@ -254,4 +310,47 @@ export function createAppReview(input: {
 
   getState().appReviews.unshift(review);
   return review;
+}
+
+export function getStoreForSeller(sellerId: string) {
+  return getState().stores.find((store) => store.sellerId === sellerId) ?? null;
+}
+
+export function upsertSellerStore(
+  sellerId: string,
+  input: { name: string; description: string },
+) {
+  const state = getState();
+  const name = publicText(input.name, 80);
+  const slug = slugify(name);
+  const existingByName = state.stores.find(
+    (store) => store.slug === slug && store.sellerId !== sellerId,
+  );
+
+  if (existingByName) {
+    throw new Error("Store name is already used.");
+  }
+
+  const existing = getStoreForSeller(sellerId);
+
+  if (existing) {
+    existing.name = name;
+    existing.slug = slug;
+    existing.description = publicText(input.description, 240);
+    existing.updatedAt = now();
+    return existing;
+  }
+
+  const store: StoreProfile = {
+    id: randomUUID(),
+    sellerId,
+    name,
+    slug,
+    description: publicText(input.description, 240),
+    createdAt: now(),
+    updatedAt: now(),
+  };
+
+  state.stores.push(store);
+  return store;
 }
