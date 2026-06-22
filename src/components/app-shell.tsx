@@ -25,7 +25,12 @@ export function AppShell({ children }: AppShellProps) {
               </a>
             ))}
           </nav>
-          <Badge>Demo ready</Badge>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="text-sm font-bold text-[var(--market)]">
+              Login
+            </Link>
+            <Badge>Demo ready</Badge>
+          </div>
         </div>
       </header>
       {children}
