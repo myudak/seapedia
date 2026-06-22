@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PackagePlus } from "lucide-react";
+import { PackagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, TextInput } from "@/components/ui/field";
@@ -22,6 +22,42 @@ export function SellerProductPanel() {
   const [price, setPrice] = useState(79000);
   const [stock, setStock] = useState(12);
   const [message, setMessage] = useState("Product form ready.");
+
+  function updateStock(product: ProductRow, stock: number) {
+    fetch(`/api/seller/products/${product.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stock }),
+    })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (payload.ok) {
+          setProducts((current) =>
+            current.map((item) => (item.id === product.id ? payload.data : item)),
+          );
+          setMessage("Product updated.");
+        } else {
+          setMessage(payload.error);
+        }
+      })
+      .catch(() => setMessage("Product update requires Seller login."));
+  }
+
+  function deleteProduct(product: ProductRow) {
+    fetch(`/api/seller/products/${product.id}`, { method: "DELETE" })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (payload.ok) {
+          setProducts((current) =>
+            current.filter((item) => item.id !== product.id),
+          );
+          setMessage("Product deleted.");
+        } else {
+          setMessage(payload.error);
+        }
+      })
+      .catch(() => setMessage("Product delete requires Seller login."));
+  }
 
   return (
     <section className="mt-8 grid gap-4">
@@ -90,6 +126,23 @@ export function SellerProductPanel() {
             <p className="mt-1 text-sm text-[var(--muted)]">
               Rp{product.price.toLocaleString("id-ID")} - stock {product.stock}
             </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => updateStock(product, product.stock + 1)}
+              >
+                + stock
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                icon={<Trash2 size={16} />}
+                onClick={() => deleteProduct(product)}
+              >
+                Delete
+              </Button>
+            </div>
           </Card>
         ))}
       </div>

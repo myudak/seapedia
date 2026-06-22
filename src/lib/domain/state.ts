@@ -393,3 +393,52 @@ export function createSellerProduct(
   getState().products.push(product);
   return product;
 }
+
+export function updateSellerProduct(
+  _sellerId: string,
+  productId: string,
+  input: Partial<{
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    imageUrl: string;
+  }>,
+) {
+  const product = getState().products.find((item) => item.id === productId);
+
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  if (input.name !== undefined) {
+    product.name = publicText(input.name, 100);
+  }
+  if (input.description !== undefined) {
+    product.description = publicText(input.description, 500);
+  }
+  if (input.price !== undefined) {
+    product.price = input.price;
+  }
+  if (input.stock !== undefined) {
+    product.stock = input.stock;
+  }
+  if (input.imageUrl !== undefined) {
+    product.imageUrl = input.imageUrl;
+  }
+
+  product.updatedAt = now();
+  return product;
+}
+
+export function deleteSellerProduct(_sellerId: string, productId: string) {
+  const state = getState();
+  const index = state.products.findIndex((item) => item.id === productId);
+
+  if (index === -1) {
+    throw new Error("Product not found.");
+  }
+
+  const [deleted] = state.products.splice(index, 1);
+  return deleted;
+}
