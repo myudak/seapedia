@@ -1020,6 +1020,51 @@ export function takeDeliveryJob(driverId: string, jobId: string) {
   return job;
 }
 
+export function completeDeliveryJob(driverId: string, jobId: string) {
+  const state = getState();
+  const job = state.deliveryJobs.find(
+    (item) => item.id === jobId && item.driverId === driverId,
+  );
+
+  if (!job) {
+    throw new Error("Delivery job not found.");
+  }
+
+  if (job.status !== "taken") {
+    throw new Error("Only taken jobs can be completed.");
+  }
+
+  const order = state.orders.find((item) => item.id === job.orderId);
+
+  if (!order || order.status !== "Sedang Dikirim") {
+    throw new Error("Order is not currently being delivered.");
+  }
+
+  job.status = "completed";
+  job.earning = Math.round(order.deliveryFee * 0.8);
+  job.updatedAt = now();
+  order.status = "Pesanan Selesai";
+  order.completedAt = now();
+  addOrderStatus(order.id, order.status, "Driver completed the delivery.");
+  return job;
+}
+
+export function listDriverJobs(driverId: string) {
+  const state = getState();
+  const jobs = state.deliveryJobs
+    .filter((job) => job.driverId === driverId)
+    .map((job) => ({
+      ...job,
+      order: state.orders.find((order) => order.id === job.orderId),
+    }));
+
+  return {
+    activeJob: jobs.find((job) => job.status === "taken") ?? null,
+    history: jobs.filter((job) => job.status === "completed"),
+    earnings: jobs.reduce((sum, job) => sum + job.earning, 0),
+  };
+}
+
 export function getBuyerSpendingReport(buyerId: string) {
   const orders = listBuyerOrders(buyerId);
   return {
