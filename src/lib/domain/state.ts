@@ -1002,6 +1002,10 @@ export function takeDeliveryJob(driverId: string, jobId: string) {
     throw new Error("Delivery job not found.");
   }
 
+  if (job.status !== "available" || job.driverId) {
+    throw new Error("Delivery job already taken.");
+  }
+
   const order = state.orders.find((item) => item.id === job.orderId);
 
   if (!order || order.status !== "Menunggu Pengirim") {
