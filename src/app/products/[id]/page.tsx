@@ -1,20 +1,25 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   BadgeCheck,
+  ChevronRight,
   CreditCard,
-  Heart,
   PackageCheck,
   ShieldCheck,
   Star,
+  Store,
   Truck,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { Badge } from "@/components/ui/badge";
+import { BuyActions } from "@/components/buy-actions";
+import { ProductGallery } from "@/components/product-gallery";
 import { Card } from "@/components/ui/card";
-import { getCatalogProduct, listCatalogProducts } from "@/lib/domain/state";
+import {
+  getCatalogProduct,
+  getProfileFromToken,
+  listCatalogProducts,
+} from "@/lib/domain/state";
+import { readSessionToken } from "@/lib/server/session";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 type ProductDetailProps = {
@@ -31,6 +36,44 @@ export async function generateMetadata({ params }: ProductDetailProps) {
   return { title: product?.name ?? "Product" };
 }
 
+const infoRows = [
+  {
+    title: "Shipping & delivery",
+    body: "Instant, Next Day, and Regular methods each calculate their own delivery fee, due date, and overdue handling at checkout.",
+  },
+  {
+    title: "Returns & refunds",
+    body: "Orders that go overdue are auto-returned or refunded based on the delivery method, with the amount returned to your wallet.",
+  },
+  {
+    title: "Single-store checkout",
+    body: "One cart holds products from a single store only. Adding an item from another store will ask you to clear the cart first.",
+  },
+];
+
+const assurances = [
+  {
+    icon: Truck,
+    title: "Delivery SLA",
+    body: "Instant, Next Day, and Regular options with due dates and overdue handling.",
+  },
+  {
+    icon: CreditCard,
+    title: "Wallet payment",
+    body: "Checkout debits wallet balance and blocks insufficient funds.",
+  },
+  {
+    icon: PackageCheck,
+    title: "Seller processing",
+    body: "Seller moves paid orders into the driver pickup queue.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "12% PPN visible",
+    body: "Tax, discount, delivery fee, and total are itemized at checkout.",
+  },
+];
+
 export default async function ProductDetailPage({ params }: ProductDetailProps) {
   const { id } = await params;
   const product = getCatalogProduct(id);
@@ -39,152 +82,161 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
     notFound();
   }
 
+  const profile = getProfileFromToken(await readSessionToken());
+  const isLoggedIn = Boolean(profile);
+  const hasBuyerRole = profile?.user.roles.includes("Buyer") ?? false;
+  const canBuy = profile?.activeRole === "Buyer";
+
   const galleryImages = product.galleryImages?.length
     ? product.galleryImages
     : [product.imageUrl];
 
+  const details = [
+    ["Store", product.storeName],
+    ["Category", product.category ?? "Marketplace"],
+    ["Stock", `${product.stock} units ready`],
+    ["Rating", `${product.rating?.toFixed(1) ?? "New"} / 5`],
+    ["Sold", `${product.soldCount ?? 0} orders`],
+    ["Checkout", "Buyer role only"],
+  ];
+
   return (
     <AppShell>
       <main className="bg-[var(--background)]">
-        <section className="border-b border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 text-sm font-black text-[var(--muted)] hover:text-[var(--danger)]"
-            >
-              <ArrowLeft size={16} />
-              Back to catalog
+        {/* Breadcrumb */}
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+          <nav className="flex flex-wrap items-center gap-1.5 text-sm text-[var(--muted)]">
+            <Link href="/" className="transition hover:text-[var(--ink)]">
+              Home
             </Link>
-          </div>
-        </section>
+            <ChevronRight size={14} />
+            <Link href="/products" className="transition hover:text-[var(--ink)]">
+              {product.category ?? "Catalog"}
+            </Link>
+            <ChevronRight size={14} />
+            <span className="text-[var(--ink)]">{product.name}</span>
+          </nav>
+        </div>
 
-        <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-4">
-            <div className="relative min-h-[520px] overflow-hidden border border-[var(--line)] bg-white">
-              {product.discountLabel ? (
-                <span className="absolute left-4 top-4 z-10 bg-[var(--danger)] px-3 py-2 text-xs font-black text-white">
-                  {product.discountLabel}
-                </span>
-              ) : null}
-              <Image
-                src={galleryImages[0]}
-                alt={product.name}
-                fill
-                sizes="(min-width: 1024px) 55vw, 100vw"
-                className="object-cover"
-                priority
-              />
+        <section className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:py-12">
+          {/* Gallery */}
+          <ProductGallery
+            images={galleryImages}
+            name={product.name}
+            discountLabel={product.discountLabel}
+          />
+
+          {/* Buy rail */}
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] transition hover:text-[var(--ink)]"
+              >
+                <Store size={13} />
+                {product.storeName}
+              </Link>
+              <span className="inline-flex items-center gap-1 font-semibold text-[var(--gold)]">
+                <Star size={15} fill="currentColor" />
+                {product.rating?.toFixed(1) ?? "New"}
+              </span>
+              <span className="text-[var(--muted)]">
+                {product.soldCount ?? 0} sold
+              </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
-              {galleryImages.map((imageUrl, index) => (
-                <div
-                  className="relative aspect-square border border-[var(--line)] bg-white"
-                  key={`${imageUrl}-${index}`}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt={`${product.name} thumbnail ${index + 1}`}
-                    fill
-                    sizes="25vw"
-                    className="object-cover"
-                  />
-                </div>
+            <h1 className="mt-4 font-display text-4xl leading-[1.05] md:text-5xl">
+              {product.name}
+            </h1>
+            <p className="mt-4 max-w-md text-base leading-7 text-[var(--muted)]">
+              {product.description}
+            </p>
+            <p className="mt-6 text-3xl font-semibold tracking-tight">
+              {formatRupiah(product.price)}
+            </p>
+
+            {/* Quantity + actions — auth-aware */}
+            <BuyActions
+              product={{
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                imageUrl: product.imageUrl,
+                category: product.category,
+                storeName: product.storeName,
+              }}
+              canBuy={canBuy}
+              isLoggedIn={isLoggedIn}
+              hasBuyerRole={hasBuyerRole}
+              inStock={product.stock > 0}
+            />
+
+            {/* Expandable info — native, no JS */}
+            <div className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+              {infoRows.map((row) => (
+                <details key={row.title} className="group py-3">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold">
+                    {row.title}
+                    <ChevronRight
+                      size={16}
+                      className="text-[var(--muted)] transition group-open:rotate-90"
+                    />
+                  </summary>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                    {row.body}
+                  </p>
+                </details>
               ))}
             </div>
           </div>
+        </section>
 
-          <div className="space-y-4">
-            <Card className="p-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge>{product.category ?? "Marketplace"}</Badge>
-                <span className="inline-flex items-center gap-1 text-sm font-black text-[#b45309]">
-                  <Star size={16} fill="currentColor" />
-                  {product.rating?.toFixed(1) ?? "New"} rating
-                </span>
-                <span className="text-sm font-bold text-[var(--muted)]">
-                  {product.soldCount ?? 0} sold
-                </span>
-              </div>
-
-              <h1 className="mt-4 text-4xl font-black leading-tight md:text-5xl">
-                {product.name}
-              </h1>
-              <p className="mt-4 text-3xl font-black text-[var(--danger)]">
-                {formatRupiah(product.price)}
-              </p>
-              <p className="mt-5 leading-8 text-[var(--muted)]">
+        {/* Product details table */}
+        <section className="border-t border-[var(--line)] bg-[var(--surface)]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <h2 className="font-display text-2xl">Product details</h2>
+              <p className="mt-3 max-w-sm text-sm leading-7 text-[var(--muted)]">
                 {product.description}
               </p>
-
-              <div className="mt-6 grid gap-3 border-y border-[var(--line)] py-5 text-sm">
-                <p className="flex items-center justify-between gap-3">
-                  <span className="font-bold text-[var(--muted)]">Store</span>
-                  <span className="font-black">{product.storeName}</span>
-                </p>
-                <p className="flex items-center justify-between gap-3">
-                  <span className="font-bold text-[var(--muted)]">Stock</span>
-                  <span className="font-black">{product.stock} units ready</span>
-                </p>
-                <p className="flex items-center justify-between gap-3">
-                  <span className="font-bold text-[var(--muted)]">Checkout</span>
-                  <span className="font-black">Buyer role only</span>
-                </p>
-              </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
-                <Link className="btn-primary min-h-12" href="/login">
-                  Login to buy
-                </Link>
-                <button className="inline-flex min-h-12 items-center justify-center gap-2 border border-[var(--line)] bg-white px-4 text-sm font-black hover:border-[var(--danger)]">
-                  <Heart size={18} />
-                  Wishlist
-                </button>
-              </div>
-              <p className="mt-4 bg-[rgba(8,117,111,0.08)] p-3 text-sm font-semibold leading-6 text-[var(--market)]">
-                Guests may inspect this product. Cart and checkout actions are
-                intentionally locked until login as Buyer / Pembeli.
-              </p>
-            </Card>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Card className="p-4">
-                <Truck className="text-[var(--market)]" size={22} />
-                <h2 className="mt-3 font-black">Delivery SLA</h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                  Instant, Next Day, and Regular options calculate due dates and
-                  overdue handling.
-                </p>
-              </Card>
-              <Card className="p-4">
-                <CreditCard className="text-[var(--market)]" size={22} />
-                <h2 className="mt-3 font-black">Wallet payment</h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                  Checkout debits wallet balance and blocks insufficient funds.
-                </p>
-              </Card>
-              <Card className="p-4">
-                <PackageCheck className="text-[var(--market)]" size={22} />
-                <h2 className="mt-3 font-black">Seller processing</h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                  Seller moves paid orders into the driver pickup queue.
-                </p>
-              </Card>
-              <Card className="p-4">
-                <ShieldCheck className="text-[var(--market)]" size={22} />
-                <h2 className="mt-3 font-black">12% PPN visible</h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                  Tax, discount, delivery fee, and total are itemized at checkout.
-                </p>
-              </Card>
             </div>
+            <dl className="overflow-hidden rounded-2xl border border-[var(--line)]">
+              {details.map(([label, value], index) => (
+                <div
+                  key={label}
+                  className={`flex items-center justify-between gap-4 px-5 py-3.5 text-sm ${
+                    index % 2 === 0 ? "bg-[var(--soft)]/60" : "bg-white"
+                  }`}
+                >
+                  <dt className="text-[var(--muted)]">{label}</dt>
+                  <dd className="font-semibold">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
 
-            <div className="flex items-center gap-3 border border-[var(--line)] bg-white p-4">
-              <BadgeCheck className="text-[var(--market)]" size={22} />
-              <p className="text-sm font-bold text-[var(--muted)]">
-                SEAPEDIA verifies catalog data before checkout.
-              </p>
-            </div>
+        {/* Assurances */}
+        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {assurances.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Card key={item.title} className="p-5">
+                  <Icon className="text-[var(--market)]" size={22} />
+                  <h3 className="mt-3 font-semibold">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
+                    {item.body}
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+            <BadgeCheck className="text-[var(--market)]" size={22} />
+            <p className="text-sm text-[var(--muted)]">
+              SEAPEDIA verifies catalog data before checkout.
+            </p>
           </div>
         </section>
       </main>
