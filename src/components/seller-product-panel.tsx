@@ -60,9 +60,9 @@ export function SellerProductPanel() {
   }
 
   return (
-    <section className="mt-8 grid gap-4">
+    <Card className="grid gap-4 p-6">
       <div>
-        <h2 className="text-2xl font-black">Product Management</h2>
+        <h2 className="font-display text-xl">Product management</h2>
         <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
           Products belong to the active seller store and later appear in the
           public catalog.
@@ -121,10 +121,13 @@ export function SellerProductPanel() {
       </form>
       <div className="grid gap-3 md:grid-cols-2">
         {products.map((product) => (
-          <Card key={product.id} className="p-4">
-            <p className="font-black">{product.name}</p>
+          <div
+            key={product.id}
+            className="rounded-xl border border-[var(--line)] bg-[var(--soft)]/40 p-4"
+          >
+            <p className="font-semibold">{product.name}</p>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Rp{product.price.toLocaleString("id-ID")} - stock {product.stock}
+              Rp{product.price.toLocaleString("id-ID")} · stock {product.stock}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button
@@ -143,9 +146,9 @@ export function SellerProductPanel() {
                 Delete
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
-    </section>
+    </Card>
   );
 }

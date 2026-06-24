@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Field, TextInput } from "@/components/ui/field";
 
 export function SellerStorePanel() {
@@ -13,9 +14,9 @@ export function SellerStorePanel() {
   const [message, setMessage] = useState("Store profile ready.");
 
   return (
-    <section className="grid gap-4">
+    <Card className="grid gap-4 p-6">
       <div>
-        <h2 className="text-2xl font-black">Store Profile</h2>
+        <h2 className="font-display text-xl">Store profile</h2>
         <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
           Store names must be unique. Sellers may only manage their own store.
         </p>
@@ -52,6 +53,6 @@ export function SellerStorePanel() {
           </p>
         </div>
       </form>
-    </section>
+    </Card>
   );
 }

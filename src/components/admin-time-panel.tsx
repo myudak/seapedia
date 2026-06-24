@@ -10,14 +10,19 @@ export function AdminTimePanel() {
   const [message, setMessage] = useState("Simulate next day for overdue orders.");
 
   return (
-    <section className="mt-8 grid gap-4">
-      <h2 className="text-2xl font-black">Time Simulation</h2>
-      <Card className="p-4">
+    <Card className="grid gap-4 p-6">
+      <div>
+        <h2 className="font-display text-xl">Time machine</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          Advance the clock to trigger overdue auto return/refund for the demo.
+        </p>
+      </div>
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--soft)]/40 p-4">
         <p className="text-sm text-[var(--muted)]">Current system time</p>
-        <p className="mt-1 font-black">
+        <p className="mt-1 font-semibold">
           {currentTime ? new Date(currentTime).toLocaleString() : "Not simulated yet"}
         </p>
-      </Card>
+      </div>
       <Button
         type="button"
         icon={<CalendarClock size={18} />}
@@ -42,6 +47,6 @@ export function AdminTimePanel() {
         Simulate next day
       </Button>
       <p className="text-sm font-semibold text-[var(--market)]">{message}</p>
-    </section>
+    </Card>
   );
 }

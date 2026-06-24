@@ -67,8 +67,13 @@ export function AdminDiscountPanel() {
   }
 
   return (
-    <section className="mt-8 grid gap-4">
-      <h2 className="text-2xl font-black">Discount Management</h2>
+    <Card className="grid gap-4 p-6">
+      <div>
+        <h2 className="font-display text-xl">Discount management</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          Generate a percentage Voucher or a fixed-amount Promo for checkout.
+        </p>
+      </div>
       <div className="grid gap-4 md:grid-cols-[1fr_auto_auto]">
         <Field label="Code">
           <TextInput value={code} onChange={(event) => setCode(event.target.value)} />
@@ -91,24 +96,38 @@ export function AdminDiscountPanel() {
         </Button>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <Card className="p-4">
-          <h3 className="font-black">Vouchers</h3>
-          {vouchers.map((voucher) => (
-            <p key={voucher.id} className="mt-2 text-sm text-[var(--muted)]">
-              {voucher.code} - {voucher.percentOff}% - {voucher.remainingUsage} left
-            </p>
-          ))}
-        </Card>
-        <Card className="p-4">
-          <h3 className="font-black">Promos</h3>
-          {promos.map((promo) => (
-            <p key={promo.id} className="mt-2 text-sm text-[var(--muted)]">
-              {promo.code} - Rp{promo.amountOff?.toLocaleString("id-ID")}
-            </p>
-          ))}
-        </Card>
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--soft)]/40 p-4">
+          <h3 className="font-semibold">Vouchers</h3>
+          {vouchers.length === 0 ? (
+            <p className="mt-2 text-sm text-[var(--muted)]">None yet.</p>
+          ) : (
+            vouchers.map((voucher) => (
+              <p key={voucher.id} className="mt-2 text-sm text-[var(--muted)]">
+                <span className="font-semibold text-[var(--ink)]">
+                  {voucher.code}
+                </span>{" "}
+                · {voucher.percentOff}% · {voucher.remainingUsage} left
+              </p>
+            ))
+          )}
+        </div>
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--soft)]/40 p-4">
+          <h3 className="font-semibold">Promos</h3>
+          {promos.length === 0 ? (
+            <p className="mt-2 text-sm text-[var(--muted)]">None yet.</p>
+          ) : (
+            promos.map((promo) => (
+              <p key={promo.id} className="mt-2 text-sm text-[var(--muted)]">
+                <span className="font-semibold text-[var(--ink)]">
+                  {promo.code}
+                </span>{" "}
+                · Rp{promo.amountOff?.toLocaleString("id-ID")}
+              </p>
+            ))
+          )}
+        </div>
       </div>
       <p className="text-sm font-semibold text-[var(--market)]">{message}</p>
-    </section>
+    </Card>
   );
 }

@@ -46,9 +46,14 @@ export function AdminOverduePanel() {
   }
 
   return (
-    <section className="mt-8 grid gap-4">
+    <Card className="grid gap-4 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-2xl font-black">Overdue Handling</h2>
+        <div>
+          <h2 className="font-display text-xl">Overdue handling</h2>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            View orders past their SLA, then auto return/refund to the buyer wallet.
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button type="button" variant="secondary" onClick={loadOverdue}>
             View overdue
@@ -58,17 +63,27 @@ export function AdminOverduePanel() {
           </Button>
         </div>
       </div>
-      <div className="grid gap-3">
-        {orders.map((order) => (
-          <Card key={order.id} className="p-4">
-            <p className="font-black">{order.storeName}</p>
-            <p className="text-sm text-[var(--muted)]">
-              {order.status} - {formatRupiah(order.total)}
-            </p>
-          </Card>
-        ))}
-      </div>
+      {orders.length === 0 ? (
+        <p className="text-sm text-[var(--muted)]">
+          No overdue orders. Use the time machine to advance the clock first.
+        </p>
+      ) : (
+        <div className="grid gap-3">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="flex items-center justify-between gap-3 rounded-xl border border-[rgba(194,90,60,0.25)] bg-[rgba(194,90,60,0.05)] p-4"
+            >
+              <div>
+                <p className="font-semibold">{order.storeName}</p>
+                <p className="text-sm text-[var(--muted)]">{order.status}</p>
+              </div>
+              <span className="font-semibold">{formatRupiah(order.total)}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <p className="text-sm font-semibold text-[var(--market)]">{message}</p>
-    </section>
+    </Card>
   );
 }
