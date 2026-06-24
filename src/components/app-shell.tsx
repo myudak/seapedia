@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, Search, ShoppingCart, UserRound } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Search } from "lucide-react";
+import { AccountMenu } from "@/components/account-menu";
+import { HeaderActions } from "@/components/header-actions";
+import { SiteFooter } from "@/components/site-footer";
 import { publicNavItems } from "@/lib/domain/navigation";
 
 type AppShellProps = {
@@ -11,84 +13,68 @@ type AppShellProps = {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-white/95 backdrop-blur">
-        <div className="bg-[var(--ink)] text-white">
-          <div className="mx-auto flex min-h-9 max-w-7xl items-center justify-between gap-3 px-4 text-xs font-bold sm:px-6">
-            <span>SEA Week Deals live now</span>
-            <span className="hidden text-white/70 sm:inline">
-              Voucher HEMAT12 • Promo ONGKIR8K
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--background)]/90 backdrop-blur">
+        <div className="border-b border-[var(--line)] bg-[var(--ink)] text-white">
+          <div className="mx-auto flex min-h-9 max-w-7xl items-center justify-center gap-2 px-4 text-center text-[11px] font-medium tracking-[0.04em] text-white/80 sm:px-6">
+            <span>Free delivery over Rp250.000</span>
+            <span className="hidden text-white/35 sm:inline">·</span>
+            <span className="hidden sm:inline">
+              Single-store checkout · PPN 12% shown at checkout
             </span>
           </div>
         </div>
 
-        <div className="mx-auto flex min-h-20 max-w-7xl items-center gap-4 px-4 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center gap-3 font-black">
-            <span className="relative size-11 overflow-hidden rounded-md border border-[var(--line)] bg-white">
+        <div className="mx-auto flex min-h-[4.5rem] max-w-7xl items-center gap-6 px-4 sm:px-6">
+          <Link href="/" className="flex shrink-0 items-center gap-3">
+            <span className="relative size-10 overflow-hidden rounded-xl border border-[var(--line)] bg-white">
               <Image
                 src="/assets/brand/seapedia-mark.png"
                 alt=""
                 fill
-                sizes="44px"
+                sizes="40px"
                 className="object-cover"
               />
             </span>
             <span className="leading-none">
-              <span className="block text-lg tracking-[0.08em]">SEAPEDIA</span>
-              <span className="block text-[10px] font-black uppercase text-[var(--muted)]">
-                Marketplace operations
+              <span className="block font-display text-[1.35rem] tracking-[0.04em]">
+                SEAPEDIA
+              </span>
+              <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.22em] text-[var(--muted)]">
+                Marketplace
               </span>
             </span>
           </Link>
 
-          <div className="hidden min-h-12 flex-1 items-center gap-3 border border-[var(--line)] bg-[var(--soft)] px-4 lg:flex">
-            <Search size={18} className="text-[var(--muted)]" />
-            <span className="text-sm font-semibold text-[var(--muted)]">
-              Search products, stores, or orders
-            </span>
-          </div>
-
-          <nav className="hidden items-center gap-4 text-sm font-black text-[var(--muted)] md:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-8 text-sm font-medium text-[var(--muted)] md:flex">
             {publicNavItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="hover:text-[var(--danger)]"
+                className="transition hover:text-[var(--ink)]"
               >
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="hidden size-11 place-items-center border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--danger)] md:grid"
-              aria-label="Open dashboard"
-            >
-              <LayoutDashboard size={18} />
-            </Link>
+          <div className="ml-auto flex items-center gap-1.5 md:ml-0">
             <Link
               href="/products"
-              className="grid size-11 place-items-center border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--danger)]"
-              aria-label="Open cart"
+              className="grid size-10 place-items-center rounded-full text-[var(--ink)] transition hover:bg-[var(--soft)]"
+              aria-label="Search products"
             >
-              <ShoppingCart size={18} />
+              <Search size={19} />
             </Link>
-            <Link
-              href="/login"
-              className="inline-flex size-11 items-center justify-center gap-2 bg-[var(--danger)] text-sm font-black text-white hover:bg-[#c91f1f] sm:w-auto sm:px-4"
-            >
-              <UserRound size={17} />
-              <span className="hidden sm:inline">Login</span>
-            </Link>
-            <span className="hidden sm:block">
-              <Badge>Ready</Badge>
-            </span>
+            <HeaderActions />
+            <AccountMenu />
           </div>
         </div>
       </header>
-      {children}
+
+      <div className="flex-1">{children}</div>
+
+      <SiteFooter />
     </div>
   );
 }
