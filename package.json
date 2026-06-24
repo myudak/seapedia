@@ -13,15 +13,20 @@
     "convex:dev": "convex dev"
   },
   "dependencies": {
+    "@convex-dev/better-auth": "^0.12.4",
     "bcryptjs": "^3.0.3",
+    "better-auth": "~1.6.20",
     "clsx": "^2.1.1",
     "convex": "^1.41.0",
     "jose": "^6.2.3",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.21.0",
     "nanoid": "^5.1.15",
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-leaflet": "^5.0.0",
+    "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -31,6 +36,7 @@
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
