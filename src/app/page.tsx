@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   Bike,
-  Clock3,
   Headphones,
   PackageCheck,
   ShieldCheck,
@@ -23,7 +22,7 @@ import { listCatalogProducts } from "@/lib/domain/state";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 const stats = [
-  ["12% PPN", "Transparent tax summary"],
+  ["12%", "PPN shown at checkout"],
   ["80%", "Driver fee earning"],
   ["1 store", "Single-store checkout"],
 ];
@@ -52,10 +51,26 @@ const roles = [
 ];
 
 const categories = [
-  { name: "Fashion", icon: ShoppingBag, tone: "bg-red-50 text-[var(--danger)]" },
-  { name: "Food", icon: Utensils, tone: "bg-amber-50 text-[#a16207]" },
-  { name: "Home", icon: Sofa, tone: "bg-emerald-50 text-[var(--market)]" },
-  { name: "Gadget", icon: Smartphone, tone: "bg-sky-50 text-[#0369a1]" },
+  {
+    name: "Fashion",
+    icon: ShoppingBag,
+    tone: "bg-[rgba(194,90,60,0.1)] text-[var(--danger)]",
+  },
+  {
+    name: "Food",
+    icon: Utensils,
+    tone: "bg-[rgba(184,134,46,0.14)] text-[#8a6d1f]",
+  },
+  {
+    name: "Home",
+    icon: Sofa,
+    tone: "bg-[rgba(31,111,106,0.12)] text-[var(--market)]",
+  },
+  {
+    name: "Gadget",
+    icon: Smartphone,
+    tone: "bg-[var(--soft)] text-[var(--ink)]",
+  },
 ];
 
 const services = [
@@ -68,34 +83,35 @@ const services = [
 export default function Home() {
   const products = listCatalogProducts();
   const featuredProducts = products.filter((product) => product.featured);
-  const flashProducts = products.slice(0, 4);
+  const popularProducts = products.slice(0, 4);
 
   return (
     <AppShell>
       <main className="bg-[var(--background)]">
-        <section className="relative overflow-hidden border-b border-[var(--line)] bg-black">
+        {/* Hero */}
+        <section className="relative overflow-hidden border-b border-[var(--line)] bg-[#15110d]">
           <Image
             src="/assets/brand/marketplace-hero.png"
             alt="Curated SEAPEDIA marketplace products"
             fill
             priority
             sizes="100vw"
-            className="object-cover opacity-85"
+            className="object-cover opacity-80"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.92)_0%,rgba(0,0,0,0.82)_37%,rgba(0,0,0,0.15)_78%)]" />
-          <div className="relative mx-auto min-h-[560px] max-w-7xl px-4 py-12 sm:px-6 lg:flex lg:min-h-[640px] lg:items-center">
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(21,17,13,0.94)_0%,rgba(21,17,13,0.78)_42%,rgba(21,17,13,0.1)_82%)]" />
+          <div className="relative mx-auto min-h-[540px] max-w-7xl px-4 py-14 sm:px-6 lg:flex lg:min-h-[620px] lg:items-center">
             <div className="max-w-2xl text-white">
-              <Badge className="border-white/20 bg-white/10 text-white">
-                SEA Week Deals
+              <Badge className="border-white/15 bg-white/10 text-white/85">
+                Marketplace, end to end
               </Badge>
-              <h1 className="mt-6 text-5xl font-black leading-[0.96] md:text-7xl">
+              <h1 className="mt-6 font-display text-5xl leading-[1.02] md:text-7xl">
                 Belanja lokal dengan alur marketplace lengkap.
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-8 text-white/78 md:text-lg">
-                Browse produk, pakai wallet, cek PPN 12%, pilih pengiriman,
+              <p className="mt-6 max-w-xl text-base leading-8 text-white/75 md:text-lg">
+                Browse produk, pakai wallet, lihat PPN 12%, pilih pengiriman,
                 lalu lanjutkan order sampai seller, driver, dan admin dashboard.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-9 flex flex-wrap gap-3">
                 <Link className="btn-primary" href="/products">
                   Shop catalog
                   <ArrowRight size={18} />
@@ -104,14 +120,14 @@ export default function Home() {
                   Login
                 </Link>
               </div>
-              <div className="mt-10 grid max-w-xl gap-3 sm:grid-cols-3">
+              <div className="mt-12 grid max-w-xl gap-3 sm:grid-cols-3">
                 {stats.map(([value, label]) => (
                   <div
-                    key={value}
-                    className="border border-white/15 bg-white/10 p-4 backdrop-blur"
+                    key={label}
+                    className="rounded-xl border border-white/12 bg-white/5 p-4 backdrop-blur"
                   >
-                    <p className="text-2xl font-black text-white">{value}</p>
-                    <p className="mt-1 text-xs font-semibold uppercase text-white/62">
+                    <p className="font-display text-2xl text-white">{value}</p>
+                    <p className="mt-1 text-xs font-medium text-white/60">
                       {label}
                     </p>
                   </div>
@@ -121,43 +137,48 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-b border-[var(--line)] bg-white">
-          <div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+        {/* Service strip */}
+        <section className="border-b border-[var(--line)] bg-[var(--surface)]">
+          <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
             {services.map((service) => {
               const Icon = service.icon;
               return (
                 <div key={service.label} className="flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-md bg-[var(--ink)] text-white">
+                  <span className="grid size-10 place-items-center rounded-full bg-[var(--soft)] text-[var(--market)]">
                     <Icon size={18} />
                   </span>
-                  <span className="text-sm font-black">{service.label}</span>
+                  <span className="text-sm font-medium">{service.label}</span>
                 </div>
               );
             })}
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        {/* Popular */}
+        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <Badge>Flash Sale</Badge>
-              <h2 className="mt-3 text-3xl font-black md:text-4xl">
-                Deals that look like a real marketplace shelf.
+              <Badge>Popular right now</Badge>
+              <h2 className="mt-4 font-display text-3xl md:text-4xl">
+                A marketplace shelf, curated by hand.
               </h2>
             </div>
-            <div className="flex items-center gap-2 text-sm font-black text-[var(--danger)]">
-              <Clock3 size={18} />
-              05 : 23 : 18
-            </div>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--danger)] underline-offset-4 hover:underline"
+            >
+              View all products
+              <ArrowRight size={16} />
+            </Link>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {flashProducts.map((product) => (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {popularProducts.map((product) => (
               <Link href={`/products/${product.id}`} key={product.id}>
-                <Card className="group h-full overflow-hidden">
-                  <div className="relative aspect-[4/3] bg-white">
+                <Card className="group h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(30,27,23,0.1)]">
+                  <div className="relative aspect-[4/5] bg-white">
                     {product.discountLabel ? (
-                      <span className="absolute left-3 top-3 z-10 bg-[var(--danger)] px-2 py-1 text-xs font-black text-white">
+                      <span className="absolute left-3 top-3 z-10 rounded-full bg-[var(--danger)] px-2.5 py-1 text-xs font-semibold text-white">
                         {product.discountLabel}
                       </span>
                     ) : null}
@@ -166,21 +187,22 @@ export default function Home() {
                       alt={product.name}
                       fill
                       sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition duration-300 group-hover:scale-105"
+                      className="object-cover transition duration-500 group-hover:scale-105"
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-xs font-black uppercase text-[var(--muted)]">
+                    <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--muted)]">
                       {product.category}
                     </p>
-                    <h3 className="mt-2 min-h-12 text-base font-black leading-6">
+                    <h3 className="mt-2 font-display text-lg leading-6">
                       {product.name}
                     </h3>
-                    <p className="mt-3 text-lg font-black text-[var(--danger)]">
+                    <p className="mt-3 text-base font-semibold">
                       {formatRupiah(product.price)}
                     </p>
-                    <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
-                      {product.rating?.toFixed(1)} rating • {product.soldCount} sold
+                    <p className="mt-1 text-xs text-[var(--muted)]">
+                      {product.rating?.toFixed(1)} rating · {product.soldCount}{" "}
+                      sold
                     </p>
                   </div>
                 </Card>
@@ -189,35 +211,41 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-y border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        {/* Categories */}
+        <section
+          id="categories"
+          className="scroll-mt-28 border-y border-[var(--line)] bg-[var(--surface)]"
+        >
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-2xl font-black">Browse by category</h2>
+              <h2 className="font-display text-2xl md:text-3xl">
+                Browse by category
+              </h2>
               <Link
                 href="/products"
-                className="text-sm font-black text-[var(--danger)] underline-offset-4 hover:underline"
+                className="text-sm font-semibold text-[var(--danger)] underline-offset-4 hover:underline"
               >
                 View all
               </Link>
             </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {categories.map((category) => {
                 const Icon = category.icon;
                 return (
                   <Link
                     href="/products"
                     key={category.name}
-                    className="flex items-center justify-between border border-[var(--line)] bg-white p-4 transition hover:-translate-y-0.5 hover:border-[var(--danger)] hover:shadow-[0_14px_40px_rgba(17,24,39,0.08)]"
+                    className="flex items-center justify-between rounded-2xl border border-[var(--line)] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[var(--ink)]"
                   >
-                    <span className="flex items-center gap-3 font-black">
+                    <span className="flex items-center gap-3 font-medium">
                       <span
-                        className={`grid size-11 place-items-center rounded-md ${category.tone}`}
+                        className={`grid size-11 place-items-center rounded-xl ${category.tone}`}
                       >
                         <Icon size={20} />
                       </span>
                       {category.name}
                     </span>
-                    <ArrowRight size={18} />
+                    <ArrowRight size={18} className="text-[var(--muted)]" />
                   </Link>
                 );
               })}
@@ -225,18 +253,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
+        {/* Multi-role */}
+        <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
           <div>
             <Badge>Multi-role engine</Badge>
-            <h2 className="mt-3 text-3xl font-black">
+            <h2 className="mt-4 font-display text-3xl leading-tight md:text-4xl">
               One storefront, four operational dashboards.
             </h2>
-            <p className="mt-3 leading-7 text-[var(--muted)]">
-              The public shop is only the front counter. Behind it, every
-              role has a specific workflow: checkout, fulfillment, delivery,
+            <p className="mt-4 leading-7 text-[var(--muted)]">
+              The public shop is only the front counter. Behind it, every role
+              has a specific workflow: checkout, fulfillment, delivery,
               monitoring, discounts, and overdue refunds.
             </p>
-            <div className="mt-6 flex items-center gap-2 text-sm font-black text-[var(--market)]">
+            <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-[var(--market)]">
               <Sparkles size={18} />
               Fulfillment, delivery, and monitoring in one workflow.
             </div>
@@ -248,11 +277,11 @@ export default function Home() {
               return (
                 <Card key={role.title} className="p-5">
                   <div className="flex gap-4">
-                    <span className="grid size-12 shrink-0 place-items-center rounded-md bg-[var(--ink)] text-white">
+                    <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-[var(--soft)] text-[var(--ink)]">
                       <Icon size={22} />
                     </span>
                     <div>
-                      <h3 className="text-base font-black">{role.title}</h3>
+                      <h3 className="font-semibold">{role.title}</h3>
                       <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
                         {role.text}
                       </p>
@@ -264,21 +293,24 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Best selling */}
         {featuredProducts.length ? (
-          <section className="border-y border-[var(--line)] bg-white">
-            <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <section className="border-y border-[var(--line)] bg-[var(--surface)]">
+            <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
               <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-black">Best selling products</h2>
+                <h2 className="font-display text-2xl md:text-3xl">
+                  Best selling products
+                </h2>
                 <Link className="btn-compact" href="/products">
                   More products
                 </Link>
               </div>
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <div className="mt-6 grid gap-5 md:grid-cols-2">
                 {featuredProducts.map((product) => (
                   <Link
                     href={`/products/${product.id}`}
                     key={product.id}
-                    className="grid overflow-hidden border border-[var(--line)] bg-white transition hover:-translate-y-0.5 hover:border-[var(--danger)] hover:shadow-[0_18px_55px_rgba(17,24,39,0.10)] sm:grid-cols-[220px_1fr]"
+                    className="grid overflow-hidden rounded-2xl border border-[var(--line)] bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_55px_rgba(30,27,23,0.1)] sm:grid-cols-[220px_1fr]"
                   >
                     <div className="relative min-h-56 bg-[var(--soft)]">
                       <Image
@@ -289,15 +321,17 @@ export default function Home() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="p-5">
-                      <p className="text-xs font-black uppercase text-[var(--muted)]">
+                    <div className="p-6">
+                      <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--muted)]">
                         {product.storeName}
                       </p>
-                      <h3 className="mt-2 text-xl font-black">{product.name}</h3>
+                      <h3 className="mt-2 font-display text-xl">
+                        {product.name}
+                      </h3>
                       <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--muted)]">
                         {product.description}
                       </p>
-                      <p className="mt-4 text-2xl font-black text-[var(--danger)]">
+                      <p className="mt-4 text-xl font-semibold">
                         {formatRupiah(product.price)}
                       </p>
                     </div>
