@@ -24,7 +24,7 @@ export function TextInput({
   return (
     <input
       className={cn(
-        "min-h-11 rounded-md border border-[var(--line)] bg-white px-3 text-sm outline-none transition focus:border-[var(--market)] focus:ring-4 focus:ring-[rgba(13,107,87,0.12)]",
+        "min-h-11 rounded-[0.625rem] border border-[var(--line)] bg-white px-3.5 text-sm outline-none transition focus:border-[var(--danger)] focus:ring-4 focus:ring-[rgba(194,90,60,0.14)]",
         className,
       )}
       {...props}
@@ -39,7 +39,7 @@ export function SelectInput({
   return (
     <select
       className={cn(
-        "min-h-11 rounded-md border border-[var(--line)] bg-white px-3 text-sm outline-none transition focus:border-[var(--market)] focus:ring-4 focus:ring-[rgba(13,107,87,0.12)]",
+        "min-h-11 rounded-[0.625rem] border border-[var(--line)] bg-white px-3.5 text-sm outline-none transition focus:border-[var(--danger)] focus:ring-4 focus:ring-[rgba(194,90,60,0.14)]",
         className,
       )}
       {...props}
