@@ -8,6 +8,8 @@ const addressSchema = z.object({
   recipient: z.string().min(2).max(80),
   phone: z.string().min(8).max(24),
   fullAddress: z.string().min(10).max(240),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
   isDefault: z.boolean().optional(),
 });
 

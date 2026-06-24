@@ -5,6 +5,7 @@ import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, TextInput } from "@/components/ui/field";
+import { MapPicker, type AddressValue } from "@/components/location/map-picker";
 
 type AddressRow = {
   id: string;
@@ -12,6 +13,8 @@ type AddressRow = {
   recipient: string;
   phone: string;
   fullAddress: string;
+  lat?: number;
+  lng?: number;
   isDefault: boolean;
 };
 
@@ -20,12 +23,14 @@ export function BuyerAddressPanel() {
   const [label, setLabel] = useState("Office");
   const [recipient, setRecipient] = useState("Nadia Buyer");
   const [phone, setPhone] = useState("081234567890");
-  const [fullAddress, setFullAddress] = useState("Jl. Sudirman No. 7, Jakarta");
+  const [address, setAddress] = useState<AddressValue>({
+    fullAddress: "Jl. Sudirman No. 7, Jakarta",
+  });
   const [message, setMessage] = useState("Address form ready.");
 
   return (
-    <section className="mt-8 grid gap-4">
-      <h2 className="text-2xl font-black">Delivery Address</h2>
+    <Card className="grid gap-4 p-6">
+      <h2 className="font-display text-xl">Delivery address</h2>
       <form
         className="grid gap-4 md:grid-cols-2"
         onSubmit={(event) => {
@@ -37,7 +42,9 @@ export function BuyerAddressPanel() {
               label,
               recipient,
               phone,
-              fullAddress,
+              fullAddress: address.fullAddress,
+              lat: address.lat,
+              lng: address.lng,
               isDefault: addresses.length === 0,
             }),
           })
@@ -65,12 +72,9 @@ export function BuyerAddressPanel() {
         <Field label="Phone">
           <TextInput value={phone} onChange={(event) => setPhone(event.target.value)} />
         </Field>
-        <Field label="Full address">
-          <TextInput
-            value={fullAddress}
-            onChange={(event) => setFullAddress(event.target.value)}
-          />
-        </Field>
+        <div className="md:col-span-2">
+          <MapPicker value={address} onChange={setAddress} />
+        </div>
         <div className="md:col-span-2">
           <Button icon={<MapPin size={18} />}>Save address</Button>
           <p className="mt-3 text-sm font-semibold text-[var(--market)]">
@@ -80,12 +84,22 @@ export function BuyerAddressPanel() {
       </form>
       <div className="grid gap-3">
         {addresses.map((address) => (
-          <Card key={address.id} className="p-4">
-            <p className="font-black">{address.label}</p>
+          <div
+            key={address.id}
+            className="rounded-xl border border-[var(--line)] bg-[var(--soft)]/40 p-4"
+          >
+            <div className="flex items-center gap-2">
+              <p className="font-semibold">{address.label}</p>
+              {address.isDefault ? (
+                <span className="rounded-full bg-[rgba(31,111,106,0.12)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--market)]">
+                  Default
+                </span>
+              ) : null}
+            </div>
             <p className="text-sm text-[var(--muted)]">{address.fullAddress}</p>
-          </Card>
+          </div>
         ))}
       </div>
-    </section>
+    </Card>
   );
 }

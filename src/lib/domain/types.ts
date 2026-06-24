@@ -102,6 +102,8 @@ export type DeliveryAddress = {
   recipient: string;
   phone: string;
   fullAddress: string;
+  lat?: number;
+  lng?: number;
   isDefault: boolean;
   createdAt: number;
 };
