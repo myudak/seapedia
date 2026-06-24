@@ -8,7 +8,7 @@ export const metadata = {
 export default function RegisterPage() {
   return (
     <AppShell>
-      <main className="px-4 py-12">
+      <main className="px-4 py-12 sm:px-6 lg:py-16">
         <AuthPanel mode="register" />
       </main>
     </AppShell>
