@@ -620,6 +620,8 @@ export function createBuyerAddress(
     recipient: string;
     phone: string;
     fullAddress: string;
+    lat?: number;
+    lng?: number;
     isDefault?: boolean;
   },
 ) {
@@ -640,6 +642,8 @@ export function createBuyerAddress(
     recipient: publicText(input.recipient, 80),
     phone: publicText(input.phone, 24),
     fullAddress: publicText(input.fullAddress, 240),
+    lat: input.lat,
+    lng: input.lng,
     isDefault: input.isDefault ?? listBuyerAddresses(buyerId).length === 0,
     createdAt: now(),
   };
@@ -1071,6 +1075,139 @@ export function listDriverJobs(driverId: string) {
   };
 }
 
+export type OverviewPoint = { label: string; value: number };
+
+export type AttentionOrder = {
+  id: string;
+  storeName: string;
+  status: OrderStatus;
+  total: number;
+  createdAt: number;
+  dueAt: number;
+};
+
+export type MarketplaceOverview = {
+  series: OverviewPoint[];
+  compare: number[];
+  revenueThisPeriod: number;
+  revenuePrevPeriod: number;
+  ordersThisPeriod: number;
+  attention: {
+    awaitingSeller: AttentionOrder[];
+    awaitingDriver: AttentionOrder[];
+    overdue: AttentionOrder[];
+  };
+  /** True when no real orders exist yet and a sample curve is shown. */
+  synthesized: boolean;
+};
+
+const DAY_MS = 86_400_000;
+
+function startOfDay(timestamp: number) {
+  const date = new Date(timestamp);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+function toAttentionOrder(order: Order): AttentionOrder {
+  return {
+    id: order.id,
+    storeName: order.storeName,
+    status: order.status,
+    total: order.total,
+    createdAt: order.createdAt,
+    dueAt: order.dueAt,
+  };
+}
+
+/**
+ * Read-only derivation for the dashboard command center: a 7-day revenue
+ * series (current vs previous period) plus the "needs attention" buckets.
+ * Falls back to a deterministic sample curve when no real orders exist yet,
+ * so the demo chart is never empty.
+ */
+export function getMarketplaceOverview(): MarketplaceOverview {
+  const state = getState();
+  const now = getCurrentTime();
+  const todayStart = startOfDay(now);
+
+  const dayStarts = Array.from(
+    { length: 7 },
+    (_, index) => todayStart - (6 - index) * DAY_MS,
+  );
+  const prevStarts = Array.from(
+    { length: 7 },
+    (_, index) => todayStart - (13 - index) * DAY_MS,
+  );
+
+  const revenueOnDay = (dayStart: number) =>
+    state.orders
+      .filter(
+        (order) =>
+          order.createdAt >= dayStart && order.createdAt < dayStart + DAY_MS,
+      )
+      .reduce((sum, order) => sum + order.total, 0);
+
+  const formatDay = (timestamp: number) =>
+    new Date(timestamp).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+
+  let series: OverviewPoint[] = dayStarts.map((dayStart) => ({
+    label: formatDay(dayStart),
+    value: revenueOnDay(dayStart),
+  }));
+  let compare = prevStarts.map((dayStart) => revenueOnDay(dayStart));
+
+  let revenueThisPeriod = series.reduce((sum, point) => sum + point.value, 0);
+  let revenuePrevPeriod = compare.reduce((sum, value) => sum + value, 0);
+
+  const synthesized = revenueThisPeriod === 0 && revenuePrevPeriod === 0;
+  if (synthesized) {
+    const catalogGmv = state.products.reduce(
+      (sum, product) => sum + product.price * (product.soldCount ?? 0),
+      0,
+    );
+    const base = Math.max(catalogGmv / 90, 50_000);
+    const shape = [0.62, 0.5, 0.74, 0.83, 1, 0.9, 0.86];
+    const prevShape = [0.55, 0.48, 0.6, 0.7, 0.82, 0.78, 0.8];
+    series = dayStarts.map((dayStart, index) => ({
+      label: formatDay(dayStart),
+      value: Math.round(base * shape[index]),
+    }));
+    compare = prevStarts.map((_, index) => Math.round(base * prevShape[index]));
+    revenueThisPeriod = series.reduce((sum, point) => sum + point.value, 0);
+    revenuePrevPeriod = compare.reduce((sum, value) => sum + value, 0);
+  }
+
+  const ordersThisPeriod = state.orders.filter(
+    (order) => order.createdAt >= dayStarts[0],
+  ).length;
+
+  const overdueIds = new Set(listOverdueOrders().map((order) => order.id));
+
+  return {
+    series,
+    compare,
+    revenueThisPeriod,
+    revenuePrevPeriod,
+    ordersThisPeriod,
+    attention: {
+      awaitingSeller: state.orders
+        .filter((order) => order.status === "Sedang Dikemas")
+        .map(toAttentionOrder),
+      awaitingDriver: state.orders
+        .filter((order) => order.status === "Menunggu Pengirim")
+        .map(toAttentionOrder),
+      overdue: state.orders
+        .filter((order) => overdueIds.has(order.id))
+        .map(toAttentionOrder),
+    },
+    synthesized,
+  };
+}
+
 export function getAdminMonitoring() {
   const state = getState();
   const currentTime = getCurrentTime();
@@ -1175,6 +1312,138 @@ export function getSellerIncomeReport(sellerId: string) {
     deliveryFee: orders.reduce((sum, order) => sum + order.deliveryFee, 0),
     ppn: orders.reduce((sum, order) => sum + order.ppn, 0),
     income: orders.reduce((sum, order) => sum + order.subtotal - order.discount, 0),
+  };
+}
+
+export type SellerMetric = { value: number; delta: number };
+
+export type SellerInsights = {
+  series: OverviewPoint[];
+  compare: number[];
+  sales: SellerMetric;
+  orders: SellerMetric;
+  units: SellerMetric;
+  avgOrderValue: SellerMetric;
+  topProducts: { name: string; revenue: number; units: number }[];
+  synthesized: boolean;
+};
+
+function pctDelta(current: number, previous: number) {
+  if (previous <= 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / previous) * 100;
+}
+
+/**
+ * Seller-scoped "Business Insights" aggregation: a 7-day sales series (vs the
+ * previous period), headline metrics with deltas, and a top-products ranking.
+ * Synthesizes a sample sales curve when the seller has no orders yet so the
+ * dashboard chart is never empty.
+ */
+export function getSellerInsights(sellerId: string): SellerInsights {
+  const now = getCurrentTime();
+  const todayStart = startOfDay(now);
+  const dayStarts = Array.from(
+    { length: 7 },
+    (_, index) => todayStart - (6 - index) * DAY_MS,
+  );
+  const prevStarts = Array.from(
+    { length: 7 },
+    (_, index) => todayStart - (13 - index) * DAY_MS,
+  );
+
+  const orders = listSellerOrders(sellerId).filter(
+    (order) => order.status !== "Dikembalikan",
+  );
+
+  const formatDay = (timestamp: number) =>
+    new Date(timestamp).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  const inDay = (created: number, dayStart: number) =>
+    created >= dayStart && created < dayStart + DAY_MS;
+  const salesOnDay = (dayStart: number) =>
+    orders
+      .filter((order) => inDay(order.createdAt, dayStart))
+      .reduce((sum, order) => sum + order.total, 0);
+
+  const periodOrders = orders.filter(
+    (order) => order.createdAt >= dayStarts[0],
+  );
+  const prevPeriodOrders = orders.filter(
+    (order) =>
+      order.createdAt >= prevStarts[0] && order.createdAt < dayStarts[0],
+  );
+  const unitsOf = (list: typeof orders) =>
+    list.reduce(
+      (sum, order) =>
+        sum + order.items.reduce((acc, item) => acc + item.quantity, 0),
+      0,
+    );
+
+  let series: OverviewPoint[] = dayStarts.map((dayStart) => ({
+    label: formatDay(dayStart),
+    value: salesOnDay(dayStart),
+  }));
+  let compare = prevStarts.map((dayStart) => salesOnDay(dayStart));
+
+  let salesThis = periodOrders.reduce((sum, order) => sum + order.total, 0);
+  let salesPrev = prevPeriodOrders.reduce((sum, order) => sum + order.total, 0);
+
+  const synthesized = salesThis === 0 && salesPrev === 0;
+  if (synthesized) {
+    const base = 1_250_000;
+    const shape = [0.58, 0.66, 0.5, 0.78, 1, 0.86, 0.92];
+    const prevShape = [0.5, 0.55, 0.48, 0.62, 0.8, 0.74, 0.82];
+    series = dayStarts.map((dayStart, index) => ({
+      label: formatDay(dayStart),
+      value: Math.round(base * shape[index]),
+    }));
+    compare = prevStarts.map((_, index) => Math.round(base * prevShape[index]));
+    salesThis = series.reduce((sum, point) => sum + point.value, 0);
+    salesPrev = compare.reduce((sum, value) => sum + value, 0);
+  }
+
+  const ordersThis = synthesized ? 42 : periodOrders.length;
+  const ordersPrev = synthesized ? 39 : prevPeriodOrders.length;
+  const unitsThis = synthesized ? 118 : unitsOf(periodOrders);
+  const unitsPrev = synthesized ? 110 : unitsOf(prevPeriodOrders);
+  const aovThis = ordersThis > 0 ? Math.round(salesThis / ordersThis) : 0;
+  const aovPrev = ordersPrev > 0 ? Math.round(salesPrev / ordersPrev) : 0;
+
+  const productMap = new Map<string, { revenue: number; units: number }>();
+  for (const order of orders) {
+    for (const item of order.items) {
+      const entry = productMap.get(item.productName) ?? { revenue: 0, units: 0 };
+      entry.revenue += item.lineTotal;
+      entry.units += item.quantity;
+      productMap.set(item.productName, entry);
+    }
+  }
+  let topProducts = [...productMap.entries()]
+    .map(([name, value]) => ({ name, ...value }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
+
+  if (topProducts.length === 0) {
+    topProducts = listSellerProducts(sellerId)
+      .slice(0, 5)
+      .map((product, index) => ({
+        name: product.name,
+        revenue: Math.round((product.price ?? 0) * (5 - index) * 1.5),
+        units: (5 - index) * 3,
+      }));
+  }
+
+  return {
+    series,
+    compare,
+    sales: { value: salesThis, delta: pctDelta(salesThis, salesPrev) },
+    orders: { value: ordersThis, delta: pctDelta(ordersThis, ordersPrev) },
+    units: { value: unitsThis, delta: pctDelta(unitsThis, unitsPrev) },
+    avgOrderValue: { value: aovThis, delta: pctDelta(aovThis, aovPrev) },
+    topProducts,
+    synthesized,
   };
 }
 
