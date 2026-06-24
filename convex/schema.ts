@@ -95,6 +95,8 @@ export default defineSchema({
     recipient: v.string(),
     phone: v.string(),
     fullAddress: v.string(),
+    lat: v.optional(v.number()),
+    lng: v.optional(v.number()),
     isDefault: v.boolean(),
     createdAt: v.number(),
   }).index("by_buyer", ["buyerId"]),
@@ -177,4 +179,24 @@ export default defineSchema({
     value: v.string(),
     updatedAt: v.number(),
   }).index("by_key", ["key"]),
+
+  // Links a Better Auth identity to its marketplace roles + active role.
+  // Roles + active-role-per-session are SEAPEDIA concepts layered on top of
+  // Better Auth (which owns authentication/sessions).
+  profiles: defineTable({
+    authUserId: v.string(),
+    username: v.string(),
+    displayName: v.string(),
+    roles: v.array(role),
+    createdAt: v.number(),
+  })
+    .index("by_auth_user", ["authUserId"])
+    .index("by_username", ["username"]),
+
+  // Active role chosen for a given Better Auth session.
+  sessionRoles: defineTable({
+    sessionToken: v.string(),
+    activeRole: role,
+    updatedAt: v.number(),
+  }).index("by_session", ["sessionToken"]),
 });

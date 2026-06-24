@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Convex functions are a separate runtime with their own tsconfig +
+    // generated types; they're linted/typechecked by the Convex CLI.
+    "convex/**",
   ]),
 ]);
 
