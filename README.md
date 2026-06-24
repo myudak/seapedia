@@ -1,6 +1,10 @@
 # SEAPEDIA
 
+> Crafted by **myudakk** — fullstack build for the Software Engineering Academy COMPFEST 18.
+
 SEAPEDIA is a fullstack marketplace challenge project for Software Engineering Academy COMPFEST 18. It supports guest browsing, public application reviews, role-aware authentication, seller product management, buyer wallet/cart/checkout, discounts, delivery jobs, admin monitoring, overdue refund/return, and baseline security hardening.
+
+It is built as a **marketplace operations simulator**: money moves through a wallet ledger, stock changes, order status advances through a state machine, the active role changes what you can do, and the admin can fast-forward time to trigger overdue refunds — all surfaced visually. The dashboard overview is a command center with a revenue chart, "needs attention" queue, and inventory alerts; orders render a visual status timeline; the wallet shows a colored financial ledger; and `/security` demonstrates the authorization and XSS controls live.
 
 ## Stack
 
@@ -70,10 +74,50 @@ All seeded account passwords are `seapedia123`.
 - Backend authorization checks the active role and resource ownership; UI route changes alone cannot grant access.
 - SQL injection risk is minimized by structured in-memory/Convex-style data access instead of string-built queries.
 
+## Backend modes (in-memory vs Convex + Better Auth)
+
+SEAPEDIA runs in two modes:
+
+- **Memory mode (default).** With no Convex env configured, the app uses the in-memory domain store
+  (`src/lib/domain/state.ts`) seeded with demo data. Everything runs with zero setup — ideal for local
+  demos — but data resets on restart. Auth uses bcrypt + httpOnly session cookies.
+- **Convex mode (real, persistent backend).** When `NEXT_PUBLIC_CONVEX_URL` is set, the app enables
+  **Convex** (DB) + **Better Auth** (`@convex-dev/better-auth`) for authentication. Data persists across
+  restarts and deploys.
+
+### Convex activation
+
+1. `npx convex dev` — logs into Convex, creates a deployment, generates `convex/_generated/`, and pushes
+   the schema + functions (including the Better Auth component from `convex/convex.config.ts`).
+2. Copy the printed `NEXT_PUBLIC_CONVEX_URL` (and the `.convex.site` URL as `NEXT_PUBLIC_CONVEX_SITE_URL`)
+   into `.env.local`; set `SITE_URL` and `BETTER_AUTH_SECRET` in the Convex deployment env.
+3. Seed FK-free data: `npx convex run seed:seed` (app reviews, a voucher `HEMAT12`, a promo `ONGKIR8K`,
+   system time). Demo accounts are created via the Better Auth sign-up flow.
+4. `pnpm dev` and verify auth/persistence.
+
+**What's wired vs. what to finish live.** The Convex schema (`convex/schema.ts`), the Better Auth
+integration (`convex/auth.ts`, `convex/http.ts`, `convex/convex.config.ts`, `src/lib/auth-*.ts`,
+`src/app/convex-client-provider.tsx`, `src/app/api/auth/[...all]/route.ts`), the multi-role/active-role
+layer (`convex/profiles.ts` — `getProfile`/`setActiveRole`/`setRoles`), and the seed are in place and
+gated by env so memory mode is unaffected. Porting the remaining **domain data** operations
+(cart/checkout/orders/etc.) into Convex queries/mutations and pointing the route handlers at them is the
+final live-integration step — intentionally done against a running `convex dev` so each function is
+verified rather than shipped blind. The route layer and its URLs are unchanged, so that swap is localized
+to the domain service layer.
+
+## Dashboards
+
+- `/dashboard` — command-center overview: revenue-over-time chart (current vs previous 7 days), live metric tiles, a "needs attention" queue (awaiting seller / awaiting driver / overdue), inventory alerts, and per-role workspace shortcuts.
+- `/dashboard/buyer` — wallet with a colored financial ledger (top-up / checkout / refund), addresses, single-store cart, checkout summary, and order history with a visual status timeline and itemized totals.
+- `/dashboard/seller` — store profile, product management, and incoming orders with the status timeline + process action.
+- `/dashboard/driver` — available jobs, take/complete, and completed earnings.
+- `/dashboard/admin` — monitoring, discount management, the time machine, overdue refund, and a link to the security checklist.
+
 ## API Documentation
 
 - In-app docs: `/docs/api`
 - OpenAPI summary: `/openapi.json`
+- Security checklist (live XSS probe + authorization controls): `/security`
 
 ## Seed Flow
 
@@ -84,7 +128,8 @@ All seeded account passwords are `seapedia123`.
 5. As Buyer, top up wallet, add cart items, preview checkout, and create an order.
 6. As Seller, process the order to `Menunggu Pengirim`.
 7. As Driver, find the delivery job, take it, and complete it.
-8. As Admin, review monitoring, generate discounts, simulate next day, and run overdue refund/return.
+8. As Admin, open `/dashboard` to see the revenue chart and "needs attention" queue, then on `/dashboard/admin` review monitoring, generate discounts, simulate next day, and run overdue refund/return — the refund appears back in the buyer wallet ledger.
+9. Open `/security` and submit a `<script>` payload through the review probe to confirm it is stored and rendered as inert, escaped text.
 
 ## Verification
 
@@ -100,7 +145,9 @@ Manual browser QA was run against `http://127.0.0.1:3000` without forcing Playwr
 - `/products`
 - `/products/prd-coral-tote`
 - `/login`
+- `/dashboard`
 - `/dashboard/admin`
+- `/security`
 
 Desktop `1366x900` and mobile `390x844` viewport checks confirmed no app error text, no visible broken images, no console errors, and no horizontal overflow on the redesigned storefront pages.
 

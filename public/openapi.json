@@ -10,6 +10,7 @@
     "/api/auth/register": { "post": { "summary": "Register user" } },
     "/api/auth/login": { "post": { "summary": "Login and set session cookie" } },
     "/api/auth/role": { "post": { "summary": "Choose active role" } },
+    "/api/auth/logout": { "post": { "summary": "Revoke session" } },
     "/api/profile": { "get": { "summary": "Read current profile" } },
     "/api/reviews": {
       "get": { "summary": "List public application reviews" },
@@ -25,12 +26,56 @@
       "get": { "summary": "List seller products" },
       "post": { "summary": "Create seller product" }
     },
-    "/api/buyer/wallet": { "get": { "summary": "Read buyer wallet" } },
+    "/api/seller/products/{id}": {
+      "patch": { "summary": "Update seller product" },
+      "delete": { "summary": "Delete seller product" }
+    },
+    "/api/seller/orders": { "get": { "summary": "List seller orders" } },
+    "/api/seller/orders/{id}/process": {
+      "post": { "summary": "Process order to Menunggu Pengirim" }
+    },
+    "/api/seller/reports": { "get": { "summary": "Seller income report" } },
+    "/api/buyer/wallet": {
+      "get": { "summary": "Read buyer wallet balance and ledger" }
+    },
     "/api/buyer/wallet/topup": { "post": { "summary": "Wallet top-up" } },
+    "/api/buyer/addresses": {
+      "get": { "summary": "List delivery addresses" },
+      "post": { "summary": "Create delivery address" }
+    },
     "/api/buyer/cart": { "get": { "summary": "Read cart summary" } },
+    "/api/buyer/cart/items": { "post": { "summary": "Add product to cart" } },
+    "/api/buyer/cart/items/{id}": {
+      "patch": { "summary": "Update cart item quantity" },
+      "delete": { "summary": "Remove cart item" }
+    },
+    "/api/buyer/checkout/summary": {
+      "post": { "summary": "Preview checkout totals (PPN, delivery, discount)" }
+    },
     "/api/buyer/checkout": { "post": { "summary": "Create order from cart" } },
+    "/api/buyer/orders": { "get": { "summary": "List buyer orders" } },
+    "/api/buyer/orders/{id}": {
+      "get": { "summary": "Read order with status timeline" }
+    },
+    "/api/buyer/reports": { "get": { "summary": "Buyer spending report" } },
     "/api/driver/jobs": { "get": { "summary": "List available delivery jobs" } },
+    "/api/driver/jobs/{id}/take": { "post": { "summary": "Take a delivery job" } },
+    "/api/driver/jobs/{id}/complete": {
+      "post": { "summary": "Complete a delivery job" }
+    },
+    "/api/driver/history": {
+      "get": { "summary": "Driver completed jobs and earnings" }
+    },
     "/api/admin/monitoring": { "get": { "summary": "Admin marketplace monitoring" } },
+    "/api/admin/vouchers": {
+      "get": { "summary": "List vouchers" },
+      "post": { "summary": "Create percentage voucher" }
+    },
+    "/api/admin/promos": {
+      "get": { "summary": "List promos" },
+      "post": { "summary": "Create fixed-amount promo" }
+    },
+    "/api/admin/time": { "post": { "summary": "Advance the system clock (time machine)" } },
     "/api/admin/overdue": {
       "get": { "summary": "List overdue orders" },
       "post": { "summary": "Run auto return/refund" }
