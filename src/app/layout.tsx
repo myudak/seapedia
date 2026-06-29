@@ -5,6 +5,7 @@ import Script from "next/script";
 import { ConvexClientProvider } from "@/app/convex-client-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
+import { getToken } from "@/lib/auth-server";
 
 // Self-hosted variable fonts (no runtime Google Fonts fetch — works offline).
 const inter = localFont({
@@ -30,11 +31,13 @@ export const metadata: Metadata = {
     "A multi-role marketplace for buyers, sellers, drivers, and admins.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialToken = await getToken();
+
   return (
     <html
       lang="en"
@@ -59,7 +62,7 @@ export default function RootLayout({
 
       </head>
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
-        <ConvexClientProvider>
+        <ConvexClientProvider initialToken={initialToken}>
           <WishlistProvider>
             <CartProvider>{children}</CartProvider>
           </WishlistProvider>
