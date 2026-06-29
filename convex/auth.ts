@@ -26,12 +26,6 @@ export const createAuth = (ctx: GenericCtx<DataModel>) =>
       enabled: true,
       requireEmailVerification: false,
     },
-    user: {
-      additionalFields: {
-        displayName: { type: "string", required: false },
-        roles: { type: "string", required: false, defaultValue: "Buyer" },
-      },
-    },
     plugins: [username(), convex({ authConfig })],
   });
 
