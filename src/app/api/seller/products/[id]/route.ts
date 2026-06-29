@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { deleteSellerProduct, updateSellerProduct } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation } from "@/lib/auth-server";
+import { api } from "../../../../../../convex/_generated/api";
 
 type ProductRouteProps = {
   params: Promise<{ id: string }>;
@@ -23,9 +23,8 @@ export async function PATCH(request: Request, { params }: ProductRouteProps) {
   }
 
   try {
-    const profile = await requireActiveRole("Seller");
     const { id } = await params;
-    return ok(updateSellerProduct(profile.user.id, id, parsed.data));
+    return ok(await fetchAuthMutation(api.seller.updateProduct, { publicId: id, ...parsed.data }));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Product update failed.", 403);
   }
@@ -33,9 +32,8 @@ export async function PATCH(request: Request, { params }: ProductRouteProps) {
 
 export async function DELETE(_request: Request, { params }: ProductRouteProps) {
   try {
-    const profile = await requireActiveRole("Seller");
     const { id } = await params;
-    return ok(deleteSellerProduct(profile.user.id, id));
+    return ok(await fetchAuthMutation(api.seller.deleteProduct, { publicId: id }));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Product delete failed.", 403);
   }

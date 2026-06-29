@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PackagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,13 +15,22 @@ type ProductRow = {
 
 export function SellerProductPanel() {
   const [products, setProducts] = useState<ProductRow[]>([]);
-  const [name, setName] = useState("Batik Cable Organizer");
-  const [description, setDescription] = useState(
-    "Compact organizer for chargers, cables, and desk accessories.",
-  );
-  const [price, setPrice] = useState(79000);
-  const [stock, setStock] = useState(12);
-  const [message, setMessage] = useState("Product form ready.");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(0);
+  const [stock, setStock] = useState(0);
+  const [message, setMessage] = useState("Loading products...");
+
+  useEffect(() => {
+    fetch("/api/seller/products")
+      .then((response) => response.json())
+      .then((payload) => {
+        if (!payload.ok) throw new Error(payload.error);
+        setProducts(payload.data);
+        setMessage(`${payload.data.length} products loaded.`);
+      })
+      .catch(() => setMessage("Seller products are unavailable."));
+  }, []);
 
   function updateStock(product: ProductRow, stock: number) {
     fetch(`/api/seller/products/${product.id}`, {
@@ -81,6 +90,10 @@ export function SellerProductPanel() {
             .then((payload) => {
               if (payload.ok) {
                 setProducts((current) => [payload.data, ...current]);
+                setName("");
+                setDescription("");
+                setPrice(0);
+                setStock(0);
                 setMessage("Product created.");
               } else {
                 setMessage(payload.error);

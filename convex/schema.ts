@@ -104,7 +104,8 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_buyer", ["buyerId"])
-    .index("by_buyer_product", ["buyerId", "productId"]),
+    .index("by_buyer_product", ["buyerId", "productId"])
+    .index("by_product", ["productId"]),
 
   orders: defineTable({
     buyerId: v.string(),

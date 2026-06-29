@@ -14,6 +14,7 @@ import type * as http from "../http.js";
 import type * as model_auth from "../model/auth.js";
 import type * as profiles from "../profiles.js";
 import type * as seed from "../seed.js";
+import type * as seller from "../seller.js";
 import type * as validators from "../validators.js";
 
 import type {
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   "model/auth": typeof model_auth;
   profiles: typeof profiles;
   seed: typeof seed;
+  seller: typeof seller;
   validators: typeof validators;
 }>;
 

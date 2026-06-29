@@ -1,17 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, TextInput } from "@/components/ui/field";
 
 export function SellerStorePanel() {
-  const [name, setName] = useState("Pasar Pagi Studio");
-  const [description, setDescription] = useState(
-    "Curated Indonesian goods for everyday marketplace needs.",
-  );
-  const [message, setMessage] = useState("Store profile ready.");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [message, setMessage] = useState("Loading store...");
+
+  useEffect(() => {
+    fetch("/api/seller/store")
+      .then((response) => response.json())
+      .then((payload) => {
+        if (!payload.ok) throw new Error(payload.error);
+        if (payload.data) {
+          setName(payload.data.name);
+          setDescription(payload.data.description);
+          setMessage("Store profile loaded.");
+        } else {
+          setMessage("Create your store to start selling.");
+        }
+      })
+      .catch(() => setMessage("Seller store is unavailable."));
+  }, []);
 
   return (
     <Card className="grid gap-4 p-6">

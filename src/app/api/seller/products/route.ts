@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { createSellerProduct, listSellerProducts } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation, fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 const productSchema = z.object({
   name: z.string().min(3).max(100),
@@ -13,8 +13,7 @@ const productSchema = z.object({
 
 export async function GET() {
   try {
-    const profile = await requireActiveRole("Seller");
-    return ok(listSellerProducts(profile.user.id));
+    return ok(await fetchAuthQuery(api.seller.listProducts, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Seller role required.", 403);
   }
@@ -28,8 +27,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const profile = await requireActiveRole("Seller");
-    return ok(createSellerProduct(profile.user.id, parsed.data), { status: 201 });
+    return ok(await fetchAuthMutation(api.seller.createProduct, parsed.data), { status: 201 });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Product creation failed.");
   }
