@@ -20,20 +20,40 @@ It is built as a **marketplace operations simulator**: money moves through a wal
 ```bash
 pnpm install
 cp .env.example .env.local
-pnpm dev
+pnpm exec convex dev
 ```
 
-Optional Convex local workflow:
+On the first run, choose **Start without an account (run Convex locally)**. The
+CLI generates `CONVEX_DEPLOYMENT`, `NEXT_PUBLIC_CONVEX_URL`, and
+`NEXT_PUBLIC_CONVEX_SITE_URL` in `.env.local`, stores local state in `.convex`,
+and generates `convex/_generated`.
+
+Set the backend-only Better Auth values once while `convex dev` is running:
 
 ```bash
-pnpm convex:dev
+pnpm exec convex env set SITE_URL http://127.0.0.1:3001
+pnpm exec convex env set BETTER_AUTH_SECRET <same-value-as-.env.local>
 ```
+
+After initial setup, run the entire local stack from one terminal:
+
+```bash
+pnpm dev:local
+```
+
+This keeps the local Convex backend and Next.js dev server on
+`http://127.0.0.1:3001` alive together. Port `3001` avoids conflicts with other
+local apps that commonly occupy port `3000`.
+Open the local data dashboard with `pnpm convex:dashboard` in another terminal.
 
 ## Environment Variables
 
-- `NEXT_PUBLIC_CONVEX_URL`: Convex client URL.
-- `CONVEX_DEPLOYMENT`: Convex deployment name.
-- `SESSION_SECRET`: random secret with at least 32 characters.
+- `NEXT_PUBLIC_CONVEX_URL`: local Convex client URL, normally `http://127.0.0.1:3210`.
+- `NEXT_PUBLIC_CONVEX_SITE_URL`: local Convex HTTP actions URL, normally `http://127.0.0.1:3211`.
+- `CONVEX_DEPLOYMENT`: generated local deployment name.
+- `SESSION_SECRET`: random Next.js session secret with at least 32 characters.
+- `SITE_URL`: Next.js origin used by Better Auth.
+- `BETTER_AUTH_SECRET`: Better Auth signing secret with at least 32 characters.
 
 ## Seed Accounts
 
@@ -87,13 +107,13 @@ SEAPEDIA runs in two modes:
 
 ### Convex activation
 
-1. `npx convex dev` — logs into Convex, creates a deployment, generates `convex/_generated/`, and pushes
+1. `pnpm exec convex dev` — choose anonymous local development, generate `convex/_generated/`, and push
    the schema + functions (including the Better Auth component from `convex/convex.config.ts`).
-2. Copy the printed `NEXT_PUBLIC_CONVEX_URL` (and the `.convex.site` URL as `NEXT_PUBLIC_CONVEX_SITE_URL`)
-   into `.env.local`; set `SITE_URL` and `BETTER_AUTH_SECRET` in the Convex deployment env.
-3. Seed FK-free data: `npx convex run seed:seed` (app reviews, a voucher `HEMAT12`, a promo `ONGKIR8K`,
+2. Confirm the generated local URLs in `.env.local`; set `SITE_URL` and `BETTER_AUTH_SECRET` in the
+   local Convex deployment environment.
+3. Seed FK-free data: `pnpm exec convex run seed:seed` (app reviews, a voucher `HEMAT12`, a promo `ONGKIR8K`,
    system time). Demo accounts are created via the Better Auth sign-up flow.
-4. `pnpm dev` and verify auth/persistence.
+4. Use `pnpm dev:local` on future runs and verify auth/persistence.
 
 **What's wired vs. what to finish live.** The Convex schema (`convex/schema.ts`), the Better Auth
 integration (`convex/auth.ts`, `convex/http.ts`, `convex/convex.config.ts`, `src/lib/auth-*.ts`,

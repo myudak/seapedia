@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:next": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "convex:dev": "convex dev"
+    "convex:dev": "convex dev",
+    "convex:dashboard": "convex dashboard",
+    "dev:local": "convex dev --start \"pnpm dev:next\""
   },
   "dependencies": {
     "@convex-dev/better-auth": "^0.12.4",
