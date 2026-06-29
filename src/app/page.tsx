@@ -18,7 +18,7 @@ import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ReviewsSection } from "@/components/reviews-section";
-import { listCatalogProducts } from "@/lib/domain/state";
+import { getFeaturedProducts } from "@/lib/catalog/server";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 const stats = [
@@ -80,10 +80,9 @@ const services = [
   { label: "Support center", icon: Headphones },
 ];
 
-export default function Home() {
-  const products = listCatalogProducts();
-  const featuredProducts = products.filter((product) => product.featured);
-  const popularProducts = products.slice(0, 4);
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts(4);
+  const popularProducts = featuredProducts;
 
   return (
     <AppShell>
@@ -233,7 +232,7 @@ export default function Home() {
                 const Icon = category.icon;
                 return (
                   <Link
-                    href="/products"
+                    href={`/products?category=${category.name}`}
                     key={category.name}
                     className="flex items-center justify-between rounded-2xl border border-[var(--line)] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[var(--ink)]"
                   >

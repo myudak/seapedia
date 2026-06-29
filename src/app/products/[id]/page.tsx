@@ -14,25 +14,18 @@ import { AppShell } from "@/components/app-shell";
 import { BuyActions } from "@/components/buy-actions";
 import { ProductGallery } from "@/components/product-gallery";
 import { Card } from "@/components/ui/card";
-import {
-  getCatalogProduct,
-  getProfileFromToken,
-  listCatalogProducts,
-} from "@/lib/domain/state";
-import { readSessionToken } from "@/lib/server/session";
+import { getCatalogProduct } from "@/lib/catalog/server";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../convex/_generated/api";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 type ProductDetailProps = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateStaticParams() {
-  return listCatalogProducts().map((product) => ({ id: product.id }));
-}
-
 export async function generateMetadata({ params }: ProductDetailProps) {
   const { id } = await params;
-  const product = getCatalogProduct(id);
+  const product = await getCatalogProduct(id);
   return { title: product?.name ?? "Product" };
 }
 
@@ -76,13 +69,13 @@ const assurances = [
 
 export default async function ProductDetailPage({ params }: ProductDetailProps) {
   const { id } = await params;
-  const product = getCatalogProduct(id);
+  const product = await getCatalogProduct(id);
 
   if (!product) {
     notFound();
   }
 
-  const profile = getProfileFromToken(await readSessionToken());
+  const profile = await fetchAuthQuery(api.profiles.getProfile, {});
   const isLoggedIn = Boolean(profile);
   const hasBuyerRole = profile?.user.roles.includes("Buyer") ?? false;
   const canBuy = profile?.activeRole === "Buyer";

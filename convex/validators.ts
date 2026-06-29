@@ -14,6 +14,13 @@ export const categoryValidator = v.union(
   v.literal("Gadget"),
 );
 
+export const catalogSortValidator = v.union(
+  v.literal("popular"),
+  v.literal("rating"),
+  v.literal("price-asc"),
+  v.literal("price-desc"),
+);
+
 export const deliveryMethodValidator = v.union(
   v.literal("Instant"),
   v.literal("Next Day"),

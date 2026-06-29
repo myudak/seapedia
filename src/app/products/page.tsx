@@ -13,7 +13,14 @@ import { AppShell } from "@/components/app-shell";
 import { WishlistHeart } from "@/components/wishlist-heart";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { listCatalogProducts } from "@/lib/domain/state";
+import {
+  getCatalogPage,
+  parseCatalogPage,
+  parseCatalogSort,
+  parseCategory,
+  productCategories,
+} from "@/lib/catalog/server";
+import type { CatalogSort } from "@/lib/catalog/catalog";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 export const metadata = {
@@ -21,13 +28,15 @@ export const metadata = {
 };
 
 type ProductsPageProps = {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string; sort?: string }>;
 };
 
-function buildHref(params: { q?: string; category?: string }) {
+function buildHref(params: { q?: string; category?: string; page?: number; sort?: CatalogSort }) {
   const search = new URLSearchParams();
   if (params.q) search.set("q", params.q);
   if (params.category) search.set("category", params.category);
+  if (params.page && params.page > 1) search.set("page", String(params.page));
+  if (params.sort && params.sort !== "popular") search.set("sort", params.sort);
   const query = search.toString();
   return query ? `/products?${query}` : "/products";
 }
@@ -35,31 +44,17 @@ function buildHref(params: { q?: string; category?: string }) {
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
-  const { q = "", category = "" } = await searchParams;
+  const { q = "", category = "", page = "1", sort: sortValue = "popular" } = await searchParams;
   const query = q.trim();
-  const activeCategory = category.trim();
-
-  const allProducts = listCatalogProducts();
-  const categories = Array.from(
-    new Set(allProducts.map((product) => product.category ?? "All")),
-  );
-
-  const needle = query.toLowerCase();
-  const products = allProducts.filter((product) => {
-    const matchesCategory =
-      !activeCategory || product.category === activeCategory;
-    const matchesQuery =
-      !needle ||
-      [
-        product.name,
-        product.description,
-        product.category,
-        product.storeName,
-      ]
-        .filter(Boolean)
-        .some((field) => field!.toLowerCase().includes(needle));
-    return matchesCategory && matchesQuery;
+  const activeCategory = parseCategory(category.trim());
+  const sort = parseCatalogSort(sortValue);
+  const catalog = await getCatalogPage({
+    q: query || undefined,
+    category: activeCategory,
+    page: parseCatalogPage(page),
+    sort,
   });
+  const products = catalog.items;
 
   const hasFilters = Boolean(query || activeCategory);
 
@@ -97,6 +92,7 @@ export default async function ProductsPage({
               {activeCategory ? (
                 <input type="hidden" name="category" value={activeCategory} />
               ) : null}
+              <input type="hidden" name="sort" value={sort} />
               <div className="flex min-h-12 items-center gap-3 rounded-[0.625rem] border border-[var(--line)] bg-white px-4 transition focus-within:border-[var(--danger)] focus-within:ring-4 focus-within:ring-[rgba(194,90,60,0.14)]">
                 <Search size={18} className="text-[var(--muted)]" />
                 <input
@@ -138,7 +134,7 @@ export default async function ProductsPage({
               </h2>
               <div className="mt-4 grid gap-2">
                 <Link
-                  href={buildHref({ q: query })}
+                  href={buildHref({ q: query, sort })}
                   className={`flex items-center justify-between rounded-[0.625rem] px-3.5 py-2.5 text-sm font-semibold transition ${
                     activeCategory
                       ? "border border-[var(--line)] hover:border-[var(--ink)]"
@@ -146,16 +142,13 @@ export default async function ProductsPage({
                   }`}
                 >
                   All products
-                  <span>{allProducts.length}</span>
+                  <span>32</span>
                 </Link>
-                {categories.map((cat) => {
-                  const count = allProducts.filter(
-                    (product) => product.category === cat,
-                  ).length;
+                {productCategories.map((cat) => {
                   const isActive = cat === activeCategory;
                   return (
                     <Link
-                      href={buildHref({ q: query, category: cat })}
+                      href={buildHref({ q: query, category: cat, sort })}
                       key={cat}
                       className={`flex items-center justify-between rounded-[0.625rem] px-3.5 py-2.5 text-sm font-medium transition ${
                         isActive
@@ -173,7 +166,7 @@ export default async function ProductsPage({
                             : "text-[var(--muted)]"
                         }
                       >
-                        {isActive ? <ArrowRight size={14} /> : count}
+                          {isActive ? <ArrowRight size={14} /> : 8}
                       </span>
                     </Link>
                   );
@@ -203,15 +196,15 @@ export default async function ProductsPage({
           </aside>
 
           <div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <p className="text-sm text-[var(--muted)]">
                 {hasFilters ? (
                   <>
                     Showing{" "}
                     <span className="font-semibold text-[var(--ink)]">
-                      {products.length}
+                      {catalog.total}
                     </span>{" "}
-                    {products.length === 1 ? "result" : "results"}
+                    {catalog.total === 1 ? "result" : "results"}
                     {query ? (
                       <>
                         {" "}
@@ -232,12 +225,23 @@ export default async function ProductsPage({
                     ) : null}
                   </>
                 ) : (
-                  <>Showing {products.length} curated products</>
+                  <>Showing {catalog.total} curated products</>
                 )}
               </p>
-              <p className="hidden text-sm font-semibold text-[var(--market)] sm:block">
-                PPN 12% appears in checkout
-              </p>
+              <form action="/products" method="get" className="flex items-end gap-2">
+                {query ? <input type="hidden" name="q" value={query} /> : null}
+                {activeCategory ? <input type="hidden" name="category" value={activeCategory} /> : null}
+                <label className="grid gap-1 text-xs font-semibold text-[var(--muted)]">
+                  Sort by
+                  <select name="sort" defaultValue={sort} className="min-h-10 rounded-[0.5rem] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)]">
+                    <option value="popular">Most popular</option>
+                    <option value="rating">Top rated</option>
+                    <option value="price-asc">Lowest price</option>
+                    <option value="price-desc">Highest price</option>
+                  </select>
+                </label>
+                <button className="btn-compact min-h-10" type="submit">Apply</button>
+              </form>
             </div>
 
             {products.length === 0 ? (
@@ -316,6 +320,21 @@ export default async function ProductsPage({
                 ))}
               </div>
             )}
+
+            {catalog.totalPages > 1 ? (
+              <nav aria-label="Catalog pagination" className="mt-8 flex flex-wrap justify-center gap-2">
+                {Array.from({ length: catalog.totalPages }, (_, index) => index + 1).map((pageNumber) => (
+                  <Link
+                    key={pageNumber}
+                    href={buildHref({ q: query, category: activeCategory, page: pageNumber, sort })}
+                    aria-current={pageNumber === catalog.page ? "page" : undefined}
+                    className={`grid size-10 place-items-center rounded-[0.5rem] border text-sm font-semibold transition ${pageNumber === catalog.page ? "border-[var(--ink)] bg-[var(--ink)] text-white" : "border-[var(--line)] bg-white hover:border-[var(--ink)]"}`}
+                  >
+                    {pageNumber}
+                  </Link>
+                ))}
+              </nav>
+            ) : null}
           </div>
         </section>
       </main>

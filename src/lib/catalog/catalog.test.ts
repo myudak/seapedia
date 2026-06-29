@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { publicProducts } from "@/lib/seed/public-products";
+import { publicProducts } from "../seed/public-products";
 import { paginateCatalog } from "./catalog";
 
 describe("catalog manifest", () => {
@@ -37,7 +37,7 @@ describe("catalog pagination", () => {
 
   it("filters search and category before paginating", () => {
     const result = paginateCatalog(publicProducts, {
-      q: "charger",
+      q: "dual-port",
       category: "Gadget",
       page: 3,
     });

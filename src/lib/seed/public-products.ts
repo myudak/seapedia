@@ -15,7 +15,7 @@ export type PublicProduct = {
   rating: number;
   soldCount: number;
   discountLabel?: string;
-  featured?: boolean;
+  featured: boolean;
 };
 
 const storeNames: Record<SeedStoreSlug, string> = {
@@ -24,14 +24,16 @@ const storeNames: Record<SeedStoreSlug, string> = {
 };
 
 function product(
-  value: Omit<PublicProduct, "storeName" | "galleryImages"> & {
+  value: Omit<PublicProduct, "storeName" | "galleryImages" | "featured"> & {
     galleryImages?: string[];
+    featured?: boolean;
   },
 ): PublicProduct {
   return {
     ...value,
     storeName: storeNames[value.storeSlug],
     galleryImages: value.galleryImages ?? [value.imageUrl],
+    featured: Boolean(value.featured),
   };
 }
 

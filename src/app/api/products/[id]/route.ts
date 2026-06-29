@@ -1,4 +1,4 @@
-import { getCatalogProduct } from "@/lib/domain/state";
+import { getCatalogProduct } from "@/lib/catalog/server";
 import { fail, ok } from "@/lib/server/http";
 
 type ProductRouteProps = {
@@ -7,7 +7,7 @@ type ProductRouteProps = {
 
 export async function GET(_request: Request, { params }: ProductRouteProps) {
   const { id } = await params;
-  const product = getCatalogProduct(id);
+  const product = await getCatalogProduct(id);
 
   if (!product) {
     return fail("Product not found.", 404);
