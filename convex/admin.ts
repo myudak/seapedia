@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { requireActiveRole } from "./model/auth";
 import { mapOrder, orderResult } from "./model/orders";
+import { isOrderRefundable } from "../src/lib/domain/convex-invariants";
 
 const voucherResult = v.object({ id: v.string(), code: v.string(), percentOff: v.number(), remainingUsage: v.number(), expiresAt: v.number(), createdAt: v.number() });
 const promoResult = v.object({ id: v.string(), code: v.string(), amountOff: v.number(), expiresAt: v.number(), createdAt: v.number() });
@@ -15,7 +16,7 @@ async function currentTime(ctx: QueryCtx | MutationCtx) {
 async function overdue(ctx: QueryCtx | MutationCtx) {
   const now = await currentTime(ctx);
   const orders = await ctx.db.query("orders").collect();
-  return orders.filter((order) => !["Pesanan Selesai", "Dikembalikan"].includes(order.status) && order.dueAt < now);
+  return orders.filter((order) => isOrderRefundable(order, now));
 }
 
 export const monitoring = query({

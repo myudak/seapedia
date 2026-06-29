@@ -3,6 +3,7 @@ import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/s
 import type { Doc } from "./_generated/dataModel";
 import { requireActiveRole } from "./model/auth";
 import { historyResult, mapHistory, mapOrder, orderResult } from "./model/orders";
+import { canClaimDeliveryJob } from "../src/lib/domain/convex-invariants";
 
 const jobResult = v.object({
   id: v.string(), orderId: v.string(), driverId: v.optional(v.string()),
@@ -132,9 +133,9 @@ export const takeJob = mutation({
   handler: async (ctx, { jobId }) => {
     const { profile } = await requireActiveRole(ctx, "Driver");
     const job = await ctx.db.get("deliveryJobs", jobId);
-    if (!job || job.status !== "available" || job.driverId) throw new ConvexError({ code: "JOB_TAKEN", message: "Delivery job already taken." });
+    if (!job) throw new ConvexError({ code: "JOB_TAKEN", message: "Delivery job already taken." });
     const order = await ctx.db.get("orders", job.orderId);
-    if (!order || order.status !== "Menunggu Pengirim") throw new ConvexError({ code: "INVALID_STATUS", message: "Only jobs waiting for driver can be taken." });
+    if (!order || !canClaimDeliveryJob({ jobStatus: job.status, driverId: job.driverId, orderStatus: order.status })) throw new ConvexError({ code: "JOB_TAKEN", message: "Delivery job already taken." });
     const now = Date.now();
     await ctx.db.patch("deliveryJobs", job._id, { driverId: profile.authUserId, status: "taken", updatedAt: now });
     await ctx.db.patch("orders", order._id, { status: "Sedang Dikirim" });
