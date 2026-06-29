@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   AlertTriangle,
   ArrowDownRight,
@@ -20,18 +21,21 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { AreaLineChart } from "@/components/ui/chart";
 import { Card } from "@/components/ui/card";
-import {
-  getAdminMonitoring,
-  getMarketplaceOverview,
-  getProfileFromToken,
-  listCatalogProducts,
-  type AttentionOrder,
-} from "@/lib/domain/state";
-import { readSessionToken } from "@/lib/server/session";
+import { fetchAuthQuery, isAuthenticated } from "@/lib/auth-server";
+import { api } from "../../../convex/_generated/api";
 import { formatRupiah } from "@/lib/seed/public-products";
 
 export const metadata = {
   title: "Dashboard",
+};
+
+type AttentionOrder = {
+  id: string;
+  storeName: string;
+  status: string;
+  total: number;
+  createdAt: number;
+  dueAt: number;
 };
 
 const workspaces = [
@@ -67,18 +71,12 @@ function percentDelta(current: number, previous: number) {
 }
 
 export default async function DashboardIndexPage() {
-  const profile = getProfileFromToken(await readSessionToken());
-  const monitoring = getAdminMonitoring();
-  const overview = getMarketplaceOverview();
-  const products = listCatalogProducts();
-
-  const lowStock = products
-    .filter((product) => product.stock <= 12)
-    .sort((a, b) => a.stock - b.stock);
+  if (!(await isAuthenticated())) redirect("/login");
+  const { profile, monitoring, overview, lowStock } = await fetchAuthQuery(api.overview.dashboard, {});
 
   const greetingName =
-    profile?.user.displayName || profile?.user.username || "there";
-  const activeRole = profile?.activeRole;
+    profile.displayName || profile.username || "there";
+  const activeRole = profile.activeRole;
 
   const revenueDelta = percentDelta(
     overview.revenueThisPeriod,
@@ -90,9 +88,7 @@ export default async function DashboardIndexPage() {
       label: "Revenue · last 7 days",
       value: formatRupiah(overview.revenueThisPeriod),
       delta: revenueDelta,
-      hint: overview.synthesized
-        ? "Sample data — no orders yet"
-        : "vs previous 7 days",
+      hint: "vs previous 7 days",
       icon: TrendingUp,
     },
     {
@@ -179,7 +175,7 @@ export default async function DashboardIndexPage() {
                 <h2 className="font-display text-xl">Revenue over time</h2>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   Daily order revenue, last 7 days
-                  {overview.synthesized ? " (sample)" : ""}.
+                  .
                 </p>
               </div>
               <div className="flex items-center gap-4 text-xs font-medium">

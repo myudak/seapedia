@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { createAppReview, listAppReviews } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { api } from "../../../../convex/_generated/api";
 
 const reviewSchema = z.object({
   reviewerName: z.string().min(2).max(60),
@@ -9,7 +10,7 @@ const reviewSchema = z.object({
 });
 
 export async function GET() {
-  return ok(listAppReviews());
+  return ok(await fetchQuery(api.reviews.list, {}));
 }
 
 export async function POST(request: Request) {
@@ -19,5 +20,5 @@ export async function POST(request: Request) {
     return fail("Invalid review payload.");
   }
 
-  return ok(createAppReview(parsed.data), { status: 201 });
+  return ok(await fetchMutation(api.reviews.create, parsed.data), { status: 201 });
 }
