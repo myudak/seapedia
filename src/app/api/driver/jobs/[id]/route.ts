@@ -1,6 +1,7 @@
-import { getDeliveryJob } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../../convex/_generated/api";
+import type { Id } from "../../../../../../convex/_generated/dataModel";
 
 type DriverJobRouteProps = {
   params: Promise<{ id: string }>;
@@ -8,9 +9,8 @@ type DriverJobRouteProps = {
 
 export async function GET(_request: Request, { params }: DriverJobRouteProps) {
   try {
-    await requireActiveRole("Driver");
     const { id } = await params;
-    const job = getDeliveryJob(id);
+    const job = await fetchAuthQuery(api.orders.getJob, { jobId: id as Id<"deliveryJobs"> });
 
     if (!job) {
       return fail("Delivery job not found.", 404);

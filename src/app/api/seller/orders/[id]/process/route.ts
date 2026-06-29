@@ -1,6 +1,7 @@
-import { processSellerOrder } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation } from "@/lib/auth-server";
+import { api } from "../../../../../../../convex/_generated/api";
+import type { Id } from "../../../../../../../convex/_generated/dataModel";
 
 type OrderProcessRouteProps = {
   params: Promise<{ id: string }>;
@@ -8,9 +9,8 @@ type OrderProcessRouteProps = {
 
 export async function POST(_request: Request, { params }: OrderProcessRouteProps) {
   try {
-    const profile = await requireActiveRole("Seller");
     const { id } = await params;
-    return ok(processSellerOrder(profile.user.id, id));
+    return ok(await fetchAuthMutation(api.orders.processSellerOrder, { orderId: id as Id<"orders"> }));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Order process failed.", 403);
   }

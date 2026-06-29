@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { advanceSystemTime, getCurrentTime } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation, fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 const advanceSchema = z.object({
   days: z.number().int().min(1).max(30),
@@ -9,8 +9,7 @@ const advanceSchema = z.object({
 
 export async function GET() {
   try {
-    await requireActiveRole("Admin");
-    return ok({ currentTime: getCurrentTime() });
+    return ok(await fetchAuthQuery(api.admin.getTime, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Admin role required.", 403);
   }
@@ -24,8 +23,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await requireActiveRole("Admin");
-    return ok(advanceSystemTime(parsed.data.days));
+    return ok(await fetchAuthMutation(api.admin.advanceTime, parsed.data));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Time simulation failed.", 403);
   }

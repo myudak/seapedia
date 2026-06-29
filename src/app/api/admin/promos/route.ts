@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { createPromo, listPromos } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation, fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 const promoSchema = z.object({
   code: z.string().min(3).max(24),
@@ -11,8 +11,7 @@ const promoSchema = z.object({
 
 export async function GET() {
   try {
-    await requireActiveRole("Admin");
-    return ok(listPromos());
+    return ok(await fetchAuthQuery(api.admin.listPromos, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Admin role required.", 403);
   }
@@ -26,8 +25,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await requireActiveRole("Admin");
-    return ok(createPromo(parsed.data), { status: 201 });
+    return ok(await fetchAuthMutation(api.admin.createPromo, parsed.data), { status: 201 });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Promo creation failed.", 403);
   }

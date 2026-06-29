@@ -1,11 +1,10 @@
-import { getAdminMonitoring } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 export async function GET() {
   try {
-    await requireActiveRole("Admin");
-    return ok(getAdminMonitoring());
+    return ok(await fetchAuthQuery(api.admin.monitoring, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Admin role required.", 403);
   }

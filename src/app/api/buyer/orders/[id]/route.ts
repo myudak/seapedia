@@ -1,6 +1,7 @@
-import { getOrderForParticipant } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../../convex/_generated/api";
+import type { Id } from "../../../../../../convex/_generated/dataModel";
 
 type OrderRouteProps = {
   params: Promise<{ id: string }>;
@@ -8,9 +9,8 @@ type OrderRouteProps = {
 
 export async function GET(_request: Request, { params }: OrderRouteProps) {
   try {
-    const profile = await requireActiveRole("Buyer");
     const { id } = await params;
-    const result = getOrderForParticipant(profile.user.id, id);
+    const result = await fetchAuthQuery(api.orders.getBuyerOrder, { orderId: id as Id<"orders"> });
 
     if (!result) {
       return fail("Order not found.", 404);

@@ -1,11 +1,10 @@
-import { listDriverJobs } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 export async function GET() {
   try {
-    const profile = await requireActiveRole("Driver");
-    return ok(listDriverJobs(profile.user.id));
+    return ok(await fetchAuthQuery(api.orders.driverHistory, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Driver role required.", 403);
   }

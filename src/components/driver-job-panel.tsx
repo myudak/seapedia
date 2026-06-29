@@ -19,6 +19,7 @@ type JobRow = {
 };
 
 type DriverHistory = {
+  activeJob: JobRow | null;
   earnings: number;
   history: Array<{ id: string; earning: number }>;
 };
@@ -69,11 +70,27 @@ export function DriverJobPanel() {
         if (payload.ok) {
           setJobs((current) => current.filter((item) => item.id !== job.id));
           setMessage("Job taken. Order moved to Sedang Dikirim.");
+          loadHistory();
         } else {
           setMessage(payload.error);
         }
       })
       .catch(() => setMessage("Taking a job requires Driver login."));
+  }
+
+  function completeJob(job: JobRow) {
+    fetch(`/api/driver/jobs/${job.id}/complete`, { method: "POST" })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (payload.ok) {
+          setMessage("Delivery completed and earnings recorded.");
+          loadHistory();
+          loadJobs();
+        } else {
+          setMessage(payload.error);
+        }
+      })
+      .catch(() => setMessage("Completing a job requires Driver login."));
   }
 
   return (
@@ -110,6 +127,18 @@ export function DriverJobPanel() {
           <span className="font-display text-xl text-[var(--market)]">
             {formatRupiah(history.earnings)}
           </span>
+        </div>
+      ) : null}
+
+      {history?.activeJob ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--market)] bg-[rgba(31,111,106,0.06)] p-4">
+          <div>
+            <p className="text-xs font-semibold uppercase text-[var(--market)]">Active delivery</p>
+            <p className="mt-1 font-semibold">{history.activeJob.order?.storeName ?? "Order in transit"}</p>
+          </div>
+          <Button type="button" icon={<Bike size={17} />} onClick={() => completeJob(history.activeJob!)}>
+            Complete delivery
+          </Button>
         </div>
       ) : null}
 

@@ -1,11 +1,10 @@
-import { listBuyerOrders } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 export async function GET() {
   try {
-    const profile = await requireActiveRole("Buyer");
-    return ok(listBuyerOrders(profile.user.id));
+    return ok(await fetchAuthQuery(api.orders.listBuyer, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Buyer role required.", 403);
   }

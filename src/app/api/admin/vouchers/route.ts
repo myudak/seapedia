@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { createVoucher, listVouchers } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation, fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 const voucherSchema = z.object({
   code: z.string().min(3).max(24),
@@ -12,8 +12,7 @@ const voucherSchema = z.object({
 
 export async function GET() {
   try {
-    await requireActiveRole("Admin");
-    return ok(listVouchers());
+    return ok(await fetchAuthQuery(api.admin.listVouchers, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Admin role required.", 403);
   }
@@ -27,8 +26,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await requireActiveRole("Admin");
-    return ok(createVoucher(parsed.data), { status: 201 });
+    return ok(await fetchAuthMutation(api.admin.createVoucher, parsed.data), { status: 201 });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Voucher creation failed.", 403);
   }
