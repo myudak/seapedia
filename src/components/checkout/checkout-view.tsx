@@ -164,6 +164,7 @@ export function CheckoutView() {
         body: JSON.stringify({
           deliveryMethod,
           discountCode: discountError ? undefined : discountCode || undefined,
+          addressId: selectedAddress,
         }),
       });
       const payload = await response.json();
@@ -439,7 +440,7 @@ export function CheckoutView() {
           <Button
             className="mt-5 w-full"
             onClick={placeOrder}
-            disabled={placing || !summary || insufficient}
+            disabled={placing || !summary || insufficient || !selectedAddress}
           >
             {placing ? "Placing order…" : "Place order"}
           </Button>

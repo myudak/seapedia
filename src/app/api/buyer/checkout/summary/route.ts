@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { previewCheckout } from "@/lib/domain/state";
 import { deliveryMethods } from "@/lib/domain/types";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../../convex/_generated/api";
 
 const summarySchema = z.object({
   deliveryMethod: z.enum(deliveryMethods),
@@ -17,14 +17,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const profile = await requireActiveRole("Buyer");
-    return ok(
-      previewCheckout(
-        profile.user.id,
-        parsed.data.deliveryMethod,
-        parsed.data.discountCode,
-      ),
-    );
+    return ok(await fetchAuthQuery(api.checkout.preview, parsed.data));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Checkout summary failed.");
   }

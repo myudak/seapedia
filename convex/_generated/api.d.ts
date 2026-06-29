@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as buyer from "../buyer.js";
 import type * as catalog from "../catalog.js";
+import type * as checkout from "../checkout.js";
 import type * as http from "../http.js";
 import type * as model_auth from "../model/auth.js";
 import type * as profiles from "../profiles.js";
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   buyer: typeof buyer;
   catalog: typeof catalog;
+  checkout: typeof checkout;
   http: typeof http;
   "model/auth": typeof model_auth;
   profiles: typeof profiles;
