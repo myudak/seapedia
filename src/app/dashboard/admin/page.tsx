@@ -27,7 +27,7 @@ export default function AdminDashboardPage() {
           <span>
             <span className="block font-semibold">Security checklist</span>
             <span className="block text-sm text-[var(--muted)]">
-              Live XSS probe and authorization controls for the demo.
+              Live XSS probe and server-side authorization controls.
             </span>
           </span>
         </span>

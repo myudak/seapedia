@@ -14,7 +14,7 @@ export function AdminTimePanel() {
       <div>
         <h2 className="font-display text-xl">Time machine</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Advance the clock to trigger overdue auto return/refund for the demo.
+          Advance the clock to trigger overdue auto return and refund handling.
         </p>
       </div>
       <div className="rounded-xl border border-[var(--line)] bg-[var(--soft)]/40 p-4">

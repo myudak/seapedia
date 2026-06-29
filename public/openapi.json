@@ -5,18 +5,18 @@
     "version": "1.0.0",
     "description": "Documented HTTP API for the SEAPEDIA marketplace application."
   },
-  "servers": [{ "url": "http://localhost:3000" }],
+  "servers": [{ "url": "http://127.0.0.1:3001" }],
   "paths": {
-    "/api/auth/register": { "post": { "summary": "Register user" } },
-    "/api/auth/login": { "post": { "summary": "Login and set session cookie" } },
+    "/api/auth/sign-up/email": { "post": { "summary": "Register with Better Auth" } },
+    "/api/auth/sign-in/username": { "post": { "summary": "Sign in with username and set session cookie" } },
     "/api/auth/role": { "post": { "summary": "Choose active role" } },
-    "/api/auth/logout": { "post": { "summary": "Revoke session" } },
+    "/api/auth/sign-out": { "post": { "summary": "Revoke the Better Auth session" } },
     "/api/profile": { "get": { "summary": "Read current profile" } },
     "/api/reviews": {
       "get": { "summary": "List public application reviews" },
       "post": { "summary": "Create public application review" }
     },
-    "/api/products": { "get": { "summary": "List public catalog products" } },
+    "/api/products": { "get": { "summary": "List paginated products with q, category, page, and sort filters" } },
     "/api/products/{id}": { "get": { "summary": "Read public product detail" } },
     "/api/seller/store": {
       "get": { "summary": "Read seller store" },
@@ -52,7 +52,7 @@
     "/api/buyer/checkout/summary": {
       "post": { "summary": "Preview checkout totals (PPN, delivery, discount)" }
     },
-    "/api/buyer/checkout": { "post": { "summary": "Create order from cart" } },
+    "/api/buyer/checkout": { "post": { "summary": "Atomically validate and create an order from cart" } },
     "/api/buyer/orders": { "get": { "summary": "List buyer orders" } },
     "/api/buyer/orders/{id}": {
       "get": { "summary": "Read order with status timeline" }

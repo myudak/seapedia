@@ -21,7 +21,7 @@ const checklist = [
     icon: Bug,
     title: "Stored XSS is neutralized",
     rule: "User-generated review text is normalized and HTML-escaped before storage; React escapes text nodes on render.",
-    proof: "publicText() in src/lib/domain/state.ts · try the live demo above",
+    proof: "Convex review validation plus React text rendering · use the live probe above",
   },
   {
     icon: UserX,

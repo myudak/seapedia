@@ -10,8 +10,9 @@ const apiGroups: Group[] = [
     title: "Auth",
     blurb: "Registration, login, active-role selection, and session profile.",
     endpoints: [
-      { method: "POST", path: "/api/auth/register" },
-      { method: "POST", path: "/api/auth/login" },
+      { method: "POST", path: "/api/auth/sign-up/email" },
+      { method: "POST", path: "/api/auth/sign-in/username" },
+      { method: "POST", path: "/api/auth/sign-out" },
       { method: "POST", path: "/api/auth/role" },
       { method: "GET", path: "/api/profile" },
     ],
@@ -20,7 +21,7 @@ const apiGroups: Group[] = [
     title: "Public",
     blurb: "Guest-accessible catalog and application reviews.",
     endpoints: [
-      { method: "GET", path: "/api/products" },
+      { method: "GET", path: "/api/products?q=&category=&page=&sort=" },
       { method: "GET", path: "/api/products/:id" },
       { method: "GET", path: "/api/reviews" },
       { method: "POST", path: "/api/reviews" },
@@ -32,6 +33,8 @@ const apiGroups: Group[] = [
     endpoints: [
       { method: "POST", path: "/api/seller/store" },
       { method: "GET", path: "/api/seller/products" },
+      { method: "POST", path: "/api/seller/products" },
+      { method: "PATCH", path: "/api/seller/products/:id" },
       { method: "POST", path: "/api/seller/orders/:id/process" },
     ],
   },
@@ -71,6 +74,7 @@ const apiGroups: Group[] = [
 const methodTone: Record<string, string> = {
   GET: "bg-[rgba(31,111,106,0.12)] text-[var(--market)]",
   POST: "bg-[rgba(194,90,60,0.12)] text-[var(--danger)]",
+  PATCH: "bg-[rgba(184,134,46,0.16)] text-[#8a6d1f]",
 };
 
 export const metadata = {

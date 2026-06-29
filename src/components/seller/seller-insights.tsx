@@ -53,7 +53,7 @@ export function SellerInsights() {
           <h2 className="font-display text-xl">Business insights</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
             {data?.synthesized
-              ? "Sample performance — your real numbers appear as orders come in."
+              ? "No completed sales are recorded for this period yet."
               : "Your store performance over the last 7 days."}
           </p>
         </div>
