@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { getCartSummary, removeCartItem, updateCartItem } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation } from "@/lib/auth-server";
+import { api } from "../../../../../../../convex/_generated/api";
+import type { Id } from "../../../../../../../convex/_generated/dataModel";
 
 type CartItemRouteProps = {
   params: Promise<{ id: string }>;
@@ -19,10 +20,8 @@ export async function PATCH(request: Request, { params }: CartItemRouteProps) {
   }
 
   try {
-    const profile = await requireActiveRole("Buyer");
     const { id } = await params;
-    updateCartItem(profile.user.id, id, parsed.data.quantity);
-    return ok(getCartSummary(profile.user.id));
+    return ok(await fetchAuthMutation(api.buyer.updateCartItem, { cartItemId: id as Id<"cartItems">, quantity: parsed.data.quantity }));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Cart update failed.");
   }
@@ -30,10 +29,8 @@ export async function PATCH(request: Request, { params }: CartItemRouteProps) {
 
 export async function DELETE(_request: Request, { params }: CartItemRouteProps) {
   try {
-    const profile = await requireActiveRole("Buyer");
     const { id } = await params;
-    removeCartItem(profile.user.id, id);
-    return ok(getCartSummary(profile.user.id));
+    return ok(await fetchAuthMutation(api.buyer.removeCartItem, { cartItemId: id as Id<"cartItems"> }));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Cart update failed.");
   }

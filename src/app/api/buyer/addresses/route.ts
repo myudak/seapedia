@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { createBuyerAddress, listBuyerAddresses } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation, fetchAuthQuery } from "@/lib/auth-server";
+import { api } from "../../../../../convex/_generated/api";
 
 const addressSchema = z.object({
   label: z.string().min(2).max(60),
@@ -15,8 +15,7 @@ const addressSchema = z.object({
 
 export async function GET() {
   try {
-    const profile = await requireActiveRole("Buyer");
-    return ok(listBuyerAddresses(profile.user.id));
+    return ok(await fetchAuthQuery(api.buyer.listAddresses, {}));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Buyer role required.", 403);
   }
@@ -30,8 +29,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const profile = await requireActiveRole("Buyer");
-    return ok(createBuyerAddress(profile.user.id, parsed.data), { status: 201 });
+    return ok(await fetchAuthMutation(api.buyer.createAddress, parsed.data), { status: 201 });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Address creation failed.");
   }

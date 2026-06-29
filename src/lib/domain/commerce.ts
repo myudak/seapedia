@@ -22,6 +22,26 @@ export const deliverySlaDays: Record<DeliveryMethod, number> = {
   Regular: 3,
 };
 
+export function assertSingleStore(storeIds: readonly string[]) {
+  if (new Set(storeIds).size > 1) {
+    throw new Error("Cart can only contain products from one store.");
+  }
+}
+
+export function assertCheckoutCapacity(input: {
+  items: readonly { name: string; stock: number; quantity: number }[];
+  balance: number;
+  total: number;
+}) {
+  const unavailable = input.items.find((item) => item.quantity > item.stock);
+  if (unavailable) {
+    throw new Error(`Insufficient stock for ${unavailable.name}.`);
+  }
+  if (input.balance < input.total) {
+    throw new Error("Insufficient wallet balance.");
+  }
+}
+
 export function calculateCheckoutSummary(input: {
   subtotal: number;
   deliveryMethod: DeliveryMethod;

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { topUpBuyerWallet } from "@/lib/domain/state";
 import { fail, ok } from "@/lib/server/http";
-import { requireActiveRole } from "@/lib/server/auth";
+import { fetchAuthMutation } from "@/lib/auth-server";
+import { api } from "../../../../../../convex/_generated/api";
 
 const topUpSchema = z.object({
   amount: z.number().int().positive(),
@@ -15,8 +15,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const profile = await requireActiveRole("Buyer");
-    return ok(topUpBuyerWallet(profile.user.id, parsed.data.amount));
+    return ok(await fetchAuthMutation(api.buyer.topUpWallet, parsed.data));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Top-up failed.", 403);
   }

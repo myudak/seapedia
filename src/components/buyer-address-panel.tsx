@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,7 +26,18 @@ export function BuyerAddressPanel() {
   const [address, setAddress] = useState<AddressValue>({
     fullAddress: "Jl. Sudirman No. 7, Jakarta",
   });
-  const [message, setMessage] = useState("Address form ready.");
+  const [message, setMessage] = useState("Loading addresses...");
+
+  useEffect(() => {
+    fetch("/api/buyer/addresses")
+      .then((response) => response.json())
+      .then((payload) => {
+        if (!payload.ok) throw new Error(payload.error);
+        setAddresses(payload.data);
+        setMessage(`${payload.data.length} addresses loaded.`);
+      })
+      .catch(() => setMessage("Buyer addresses are unavailable."));
+  }, []);
 
   return (
     <Card className="grid gap-4 p-6">
