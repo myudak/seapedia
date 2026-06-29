@@ -1,22 +1,18 @@
 import { z } from "zod";
-import { chooseActiveRole } from "@/lib/domain/state";
-import { roles } from "@/lib/domain/types";
+import { api } from "../../../../../convex/_generated/api";
+import { fetchAuthMutation } from "@/lib/auth-server";
 import { fail, ok } from "@/lib/server/http";
-import { readSessionToken } from "@/lib/server/session";
 
 const roleSchema = z.object({
-  role: z.enum(roles),
+  role: z.enum(["Admin", "Seller", "Buyer", "Driver"]),
 });
 
 export async function POST(request: Request) {
   const parsed = roleSchema.safeParse(await request.json());
-
-  if (!parsed.success) {
-    return fail("Invalid role selection.");
-  }
+  if (!parsed.success) return fail("Invalid role selection.");
 
   try {
-    return ok(chooseActiveRole(await readSessionToken(), parsed.data.role));
+    return ok(await fetchAuthMutation(api.profiles.setActiveRole, parsed.data));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Role selection failed.", 403);
   }

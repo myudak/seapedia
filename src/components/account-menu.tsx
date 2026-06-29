@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 type Profile = {
   user: { username: string; displayName: string; roles: string[] };
@@ -35,7 +36,8 @@ export function AccountMenu() {
   }, []);
 
   function logout() {
-    fetch("/api/auth/logout", { method: "POST" })
+    authClient
+      .signOut()
       .then(() => {
         setProfile(null);
         router.push("/");

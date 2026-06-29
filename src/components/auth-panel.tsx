@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRight,
-  Bike,
   Eye,
   EyeOff,
   LayoutDashboard,
@@ -13,13 +12,13 @@ import {
   LogIn,
   Receipt,
   ShieldCheck,
-  ShoppingBag,
   Store,
   UserPlus,
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/ui/field";
+import { authClient } from "@/lib/auth-client";
 
 type AuthPanelProps = {
   mode: "login" | "register";
@@ -49,16 +48,6 @@ const features = [
   },
 ];
 
-// Quick "continue as" demo accounts — one seed login per role.
-const roleShortcuts = [
-  { role: "Buyer", username: "buyer", icon: ShoppingBag, hint: "Browse & buy" },
-  { role: "Seller", username: "seller", icon: Store, hint: "Manage products" },
-  { role: "Driver", username: "driver", icon: Bike, hint: "Deliver orders" },
-  { role: "Admin", username: "admin", icon: ShieldCheck, hint: "Manage platform" },
-];
-
-const DEMO_PASSWORD = "seapedia123";
-
 function dashboardPath(role?: string) {
   return `/dashboard/${(role ?? "buyer").toLowerCase()}`;
 }
@@ -67,8 +56,8 @@ export function AuthPanel({ mode }: AuthPanelProps) {
   const router = useRouter();
   const isLogin = mode === "login";
 
-  const [username, setUsername] = useState(isLogin ? "maya" : "");
-  const [password, setPassword] = useState(isLogin ? DEMO_PASSWORD : "");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -86,36 +75,14 @@ export function AuthPanel({ mode }: AuthPanelProps) {
     router.refresh();
   }
 
-  async function authenticate(
-    user = username,
-    pass = password,
-  ): Promise<Profile | null> {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: user, password: pass }),
-    });
+  async function loadProfile(): Promise<Profile | null> {
+    const response = await fetch("/api/profile", { cache: "no-store" });
     const payload = await response.json();
     if (!payload.ok) {
-      setError(payload.error ?? "Invalid username or password.");
+      setError(payload.error ?? "Profile could not be loaded.");
       return null;
     }
     return payload.data as Profile;
-  }
-
-  async function quickLogin(user: string) {
-    setPending(true);
-    setError(null);
-    setUsername(user);
-    setPassword(DEMO_PASSWORD);
-    try {
-      const profile = await authenticate(user, DEMO_PASSWORD);
-      if (profile) proceedAfterAuth(profile);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setPending(false);
-    }
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -125,25 +92,38 @@ export function AuthPanel({ mode }: AuthPanelProps) {
 
     try {
       if (!isLogin) {
-        const registerResponse = await fetch("/api/auth/register", {
+        const { error: signUpError } = await authClient.signUp.email({
+          username,
+          name: displayName || username,
+          email,
+          password,
+        });
+        if (signUpError) {
+          setError(signUpError.message ?? "Registration failed.");
+          return;
+        }
+
+        const profileResponse = await fetch("/api/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username,
-            password,
-            displayName: displayName || username,
-            email,
-            roles: ["Buyer"],
-          }),
+          body: JSON.stringify({ username, displayName: displayName || username }),
         });
-        const registerPayload = await registerResponse.json();
-        if (!registerPayload.ok) {
-          setError(registerPayload.error ?? "Registration failed.");
+        if (!profileResponse.ok) {
+          setError("Account created, but marketplace profile setup failed.");
+          return;
+        }
+      } else {
+        const { error: signInError } = await authClient.signIn.username({
+          username,
+          password,
+        });
+        if (signInError) {
+          setError(signInError.message ?? "Invalid username or password.");
           return;
         }
       }
 
-      const profile = await authenticate();
+      const profile = await loadProfile();
       if (profile) {
         proceedAfterAuth(profile);
       }
@@ -355,44 +335,6 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               </Link>
             </p>
 
-            {isLogin ? (
-              <>
-                <div className="mt-7 flex items-center gap-3">
-                  <span className="h-px flex-1 bg-[var(--line)]" />
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                    Or continue as
-                  </span>
-                  <span className="h-px flex-1 bg-[var(--line)]" />
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-                  {roleShortcuts.map(({ role, username: user, icon: Icon, hint }) => (
-                    <button
-                      key={role}
-                      type="button"
-                      disabled={pending}
-                      onClick={() => quickLogin(user)}
-                      className="group flex flex-col items-start gap-2 rounded-[0.75rem] border border-[var(--line)] bg-white p-3 text-left transition hover:border-[var(--danger)] hover:bg-[var(--soft)] disabled:opacity-60"
-                    >
-                      <span className="grid size-8 place-items-center rounded-lg bg-[var(--soft)] text-[var(--ink)] transition group-hover:bg-white">
-                        <Icon size={16} />
-                      </span>
-                      <span className="text-sm font-semibold leading-none">
-                        {role}
-                      </span>
-                      <span className="text-[11px] leading-none text-[var(--muted)]">
-                        {hint}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-3 text-[11px] text-[var(--muted)]">
-                  Demo accounts · password{" "}
-                  <span className="font-semibold text-[var(--ink)]">
-                    {DEMO_PASSWORD}
-                  </span>
-                </p>
-              </>
-            ) : null}
           </>
         )}
       </div>
