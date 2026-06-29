@@ -121,10 +121,9 @@ export const seed = internalMutation({
       }
     }
 
-    for (const [index, product] of publicProducts.entries()) {
-      const storeSlug = index % 2 === 0 ? "pasar-pagi-studio" : "kedai-timur";
-      const storeId = storeIds.get(storeSlug);
-      const sellerId = profileIds.get(index % 2 === 0 ? "seller" : "maya");
+    for (const product of publicProducts) {
+      const storeId = storeIds.get(product.storeSlug);
+      const sellerId = profileIds.get(product.storeSlug === "pasar-pagi-studio" ? "seller" : "maya");
       if (!storeId || !sellerId) throw new Error(`Missing ownership for ${product.id}.`);
       const values = {
         storeId,
