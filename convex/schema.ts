@@ -1,72 +1,67 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-
-const role = v.union(
-  v.literal("Admin"),
-  v.literal("Seller"),
-  v.literal("Buyer"),
-  v.literal("Driver"),
-);
-
-const orderStatus = v.union(
-  v.literal("Sedang Dikemas"),
-  v.literal("Menunggu Pengirim"),
-  v.literal("Sedang Dikirim"),
-  v.literal("Pesanan Selesai"),
-  v.literal("Dikembalikan"),
-);
+import {
+  categoryValidator,
+  deliveryMethodValidator,
+  orderStatusValidator,
+  roleValidator,
+} from "./validators";
 
 export default defineSchema({
-  users: defineTable({
+  profiles: defineTable({
+    authUserId: v.string(),
     username: v.string(),
     displayName: v.string(),
-    email: v.string(),
-    phone: v.optional(v.string()),
-    passwordHash: v.string(),
-    roles: v.array(role),
+    roles: v.array(roleValidator),
     createdAt: v.number(),
-  }).index("by_username", ["username"]),
-
-  sessions: defineTable({
-    userId: v.id("users"),
-    tokenHash: v.string(),
-    activeRole: v.optional(role),
-    expiresAt: v.number(),
-    revokedAt: v.optional(v.number()),
-    createdAt: v.number(),
+    updatedAt: v.number(),
   })
-    .index("by_token", ["tokenHash"])
-    .index("by_user", ["userId"]),
+    .index("by_auth_user", ["authUserId"])
+    .index("by_username", ["username"]),
+
+  sessionRoles: defineTable({
+    sessionId: v.string(),
+    authUserId: v.string(),
+    activeRole: roleValidator,
+    updatedAt: v.number(),
+  })
+    .index("by_session", ["sessionId"])
+    .index("by_auth_user", ["authUserId"]),
 
   stores: defineTable({
-    sellerId: v.id("users"),
+    sellerId: v.string(),
     name: v.string(),
+    slug: v.string(),
     description: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_seller", ["sellerId"])
+    .index("by_slug", ["slug"])
     .index("by_name", ["name"]),
 
   products: defineTable({
+    publicId: v.string(),
     storeId: v.id("stores"),
-    sellerId: v.id("users"),
+    sellerId: v.string(),
     name: v.string(),
     description: v.string(),
     price: v.number(),
     stock: v.number(),
     imageUrl: v.string(),
-    galleryImages: v.optional(v.array(v.string())),
-    category: v.optional(v.string()),
-    rating: v.optional(v.number()),
-    soldCount: v.optional(v.number()),
+    galleryImages: v.array(v.string()),
+    category: categoryValidator,
+    rating: v.number(),
+    soldCount: v.number(),
     discountLabel: v.optional(v.string()),
-    featured: v.optional(v.boolean()),
+    featured: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
+    .index("by_public_id", ["publicId"])
     .index("by_store", ["storeId"])
-    .index("by_seller", ["sellerId"]),
+    .index("by_seller", ["sellerId"])
+    .index("by_category", ["category"]),
 
   appReviews: defineTable({
     reviewerName: v.string(),
@@ -76,13 +71,13 @@ export default defineSchema({
   }).index("by_created", ["createdAt"]),
 
   wallets: defineTable({
-    buyerId: v.id("users"),
+    buyerId: v.string(),
     balance: v.number(),
     updatedAt: v.number(),
   }).index("by_buyer", ["buyerId"]),
 
   walletTransactions: defineTable({
-    buyerId: v.id("users"),
+    buyerId: v.string(),
     type: v.union(v.literal("topup"), v.literal("checkout"), v.literal("refund")),
     amount: v.number(),
     note: v.string(),
@@ -90,7 +85,7 @@ export default defineSchema({
   }).index("by_buyer", ["buyerId"]),
 
   addresses: defineTable({
-    buyerId: v.id("users"),
+    buyerId: v.string(),
     label: v.string(),
     recipient: v.string(),
     phone: v.string(),
@@ -102,7 +97,7 @@ export default defineSchema({
   }).index("by_buyer", ["buyerId"]),
 
   cartItems: defineTable({
-    buyerId: v.id("users"),
+    buyerId: v.string(),
     storeId: v.id("stores"),
     productId: v.id("products"),
     quantity: v.number(),
@@ -112,21 +107,30 @@ export default defineSchema({
     .index("by_buyer_product", ["buyerId", "productId"]),
 
   orders: defineTable({
-    buyerId: v.id("users"),
-    sellerId: v.id("users"),
+    buyerId: v.string(),
+    sellerId: v.string(),
     storeId: v.id("stores"),
-    deliveryMethod: v.union(
-      v.literal("Instant"),
-      v.literal("Next Day"),
-      v.literal("Regular"),
+    storeName: v.string(),
+    addressId: v.id("addresses"),
+    items: v.array(
+      v.object({
+        productId: v.id("products"),
+        publicId: v.string(),
+        productName: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        lineTotal: v.number(),
+      }),
     ),
-    status: orderStatus,
+    deliveryMethod: deliveryMethodValidator,
+    status: orderStatusValidator,
     subtotal: v.number(),
     discount: v.number(),
     deliveryFee: v.number(),
     ppn: v.number(),
     total: v.number(),
     discountCode: v.optional(v.string()),
+    discountType: v.optional(v.union(v.literal("Voucher"), v.literal("Promo"))),
     dueAt: v.number(),
     refundedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
@@ -138,7 +142,7 @@ export default defineSchema({
 
   orderStatusHistory: defineTable({
     orderId: v.id("orders"),
-    status: orderStatus,
+    status: orderStatusValidator,
     note: v.string(),
     createdAt: v.number(),
   }).index("by_order", ["orderId"]),
@@ -160,7 +164,7 @@ export default defineSchema({
 
   deliveryJobs: defineTable({
     orderId: v.id("orders"),
-    driverId: v.optional(v.id("users")),
+    driverId: v.optional(v.string()),
     status: v.union(
       v.literal("available"),
       v.literal("taken"),
@@ -179,24 +183,4 @@ export default defineSchema({
     value: v.string(),
     updatedAt: v.number(),
   }).index("by_key", ["key"]),
-
-  // Links a Better Auth identity to its marketplace roles + active role.
-  // Roles + active-role-per-session are SEAPEDIA concepts layered on top of
-  // Better Auth (which owns authentication/sessions).
-  profiles: defineTable({
-    authUserId: v.string(),
-    username: v.string(),
-    displayName: v.string(),
-    roles: v.array(role),
-    createdAt: v.number(),
-  })
-    .index("by_auth_user", ["authUserId"])
-    .index("by_username", ["username"]),
-
-  // Active role chosen for a given Better Auth session.
-  sessionRoles: defineTable({
-    sessionToken: v.string(),
-    activeRole: role,
-    updatedAt: v.number(),
-  }).index("by_session", ["sessionToken"]),
 });
