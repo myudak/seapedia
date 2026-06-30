@@ -55,6 +55,19 @@ The seed is idempotent. Re-running it updates stable accounts, stores, products,
 
 Never commit `.env.local` or production credentials.
 
+## Production Deployment
+
+Vercel runs `pnpm vercel-build`, which deploys the Convex functions before
+building the Next.js application. Configure these values in Vercel Production:
+
+- `CONVEX_DEPLOY_KEY`
+- `NEXT_PUBLIC_CONVEX_URL`
+- `NEXT_PUBLIC_CONVEX_SITE_URL`
+
+Configure `SITE_URL` and `BETTER_AUTH_SECRET` separately on the Convex
+production deployment. Local `127.0.0.1` values must never be copied into a
+production environment.
+
 ## Seed Accounts
 
 The development password is the local value of `SEED_ACCOUNT_PASSWORD` (the supplied setup uses `seapedia123`).

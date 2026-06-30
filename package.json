@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "convex:dev": "convex dev",
     "convex:dashboard": "convex dashboard",
-    "dev:local": "convex dev --start \"pnpm dev:next\""
+    "dev:local": "convex dev --start \"pnpm dev:next\"",
+    "vercel-build": "convex deploy --cmd \"pnpm build\" --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL"
   },
   "dependencies": {
     "@convex-dev/better-auth": "^0.12.4",
