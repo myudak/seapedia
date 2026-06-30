@@ -275,6 +275,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
                   <TextInput
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
+                    autoComplete="username"
                     className="w-full pl-10"
                     required
                   />
@@ -290,6 +291,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
                     className="w-full px-10"
                     required
                   />
@@ -304,6 +306,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
                 </div>
               </Field>
               <Button
+                type="submit"
                 className="mt-1"
                 disabled={pending}
                 icon={isLogin ? <LogIn size={18} /> : <UserPlus size={18} />}

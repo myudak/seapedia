@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Script from "next/script";
 import { ConvexClientProvider } from "@/app/convex-client-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
@@ -43,24 +42,6 @@ export default async function RootLayout({
       lang="en"
       className={`h-full antialiased ${inter.variable} ${fraunces.variable}`}
     >
-      <head>
-        {process.env.NODE_ENV === "development" && (
-          <>
-            <Script
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-          crossOrigin="anonymous"
-          strategy="beforeInteractive"
-        />
-
-          <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-            />
-            </>
-        )}
-
-      </head>
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
         <ConvexClientProvider initialToken={initialToken}>
           <WishlistProvider>

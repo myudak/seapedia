@@ -17,6 +17,15 @@ test("guest can browse the Convex-backed catalog", async ({ page }) => {
   await expect(page).toHaveURL(/page=2/);
 });
 
+test("login form hydrates before credentials are submitted", async ({ page }) => {
+  await page.goto("/login");
+  const passwordInput = page.getByLabel("Password", { exact: true });
+
+  await expect(passwordInput).toHaveAttribute("type", "password");
+  await page.getByRole("button", { name: "Show password" }).click();
+  await expect(passwordInput).toHaveAttribute("type", "text");
+});
+
 for (const account of [
   { username: "buyer", role: "Buyer" },
   { username: "seller", role: "Seller" },
@@ -54,5 +63,9 @@ test("buyer can log out from an authenticated session", async ({ page }) => {
   await expect(page).toHaveURL("/dashboard/buyer");
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL("/");
-  await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
+  await expect(
+    page
+      .getByRole("banner")
+      .getByRole("link", { name: "Login", exact: true }),
+  ).toBeVisible();
 });
