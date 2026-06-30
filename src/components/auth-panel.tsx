@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/ui/field";
 import { authClient } from "@/lib/auth-client";
+import { dashboardPath, rolesForSession } from "@/lib/auth-flow";
 
 type AuthPanelProps = {
   mode: "login" | "register";
@@ -48,10 +49,6 @@ const features = [
   },
 ];
 
-function dashboardPath(role?: string) {
-  return `/dashboard/${(role ?? "buyer").toLowerCase()}`;
-}
-
 export function AuthPanel({ mode }: AuthPanelProps) {
   const router = useRouter();
   const isLogin = mode === "login";
@@ -68,7 +65,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
 
   function proceedAfterAuth(profile: Profile) {
     if (profile.needsRoleSelection) {
-      setRoleOptions(profile.user.roles.filter((role) => role !== "Admin"));
+      setRoleOptions(rolesForSession(profile));
       return;
     }
     router.push(dashboardPath(profile.activeRole));
