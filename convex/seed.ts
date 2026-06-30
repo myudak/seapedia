@@ -35,6 +35,7 @@ export const seed = internalMutation({
 
     const now = Date.now();
     const { auth } = await authComponent.getAuth(createAuth, ctx);
+    const authContext = await auth.$context;
     const profileIds = new Map<string, string>();
 
     for (const account of accounts) {
@@ -72,6 +73,11 @@ export const seed = internalMutation({
       }
 
       if (!profile) throw new Error(`Could not seed ${account.username}.`);
+      const passwordHash = await authContext.password.hash(password);
+      await authContext.internalAdapter.updatePassword(
+        profile.authUserId,
+        passwordHash,
+      );
       profileIds.set(account.username, profile.authUserId);
     }
 
