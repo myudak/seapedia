@@ -87,6 +87,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6.0.2
         version: 6.0.2(vite@8.0.16(@types/node@20.19.43)(esbuild@0.27.0)(jiti@2.7.0))
+      convex-test:
+        specifier: ^0.0.54
+        version: 0.0.54(convex@1.41.0(react@19.2.4))
       eslint:
         specifier: ^9
         version: 9.39.4(jiti@2.7.0)
@@ -1628,6 +1631,11 @@ packages:
         optional: true
       zod:
         optional: true
+
+  convex-test@0.0.54:
+    resolution: {integrity: sha512-C0v2SQcuxrELAJRNzE6fQ686XDPor7UFoC22jcoJXeCRqhLo8ZIMZ4jyUHoo1UdAL2enCb0AbiprCVpLDN8u9Q==}
+    peerDependencies:
+      convex: ^1.32.0
 
   convex@1.41.0:
     resolution: {integrity: sha512-euxVf6yfpB7/VGKOobkLgjpbJidsUgW+b0ezonEyCUPqlpHFwR4/yIiI1hjjErzraiw91GxrtxpXQClMLNqU+w==}
@@ -4390,6 +4398,10 @@ snapshots:
       react: 19.2.4
       typescript: 5.9.3
       zod: 4.4.3
+
+  convex-test@0.0.54(convex@1.41.0(react@19.2.4)):
+    dependencies:
+      convex: 1.41.0(react@19.2.4)
 
   convex@1.41.0(react@19.2.4):
     dependencies:
