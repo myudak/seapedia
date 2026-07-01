@@ -89,11 +89,10 @@ export function XssReviewDemo() {
             </p>
           </div>
           <p className="text-xs leading-5 text-[var(--muted)]">
-            The payload is normalized and HTML-escaped server-side (
-            <code className="font-mono">publicText</code> in{" "}
-            <code className="font-mono">src/lib/domain/state.ts</code>) before
-            storage, and React escapes text nodes on render. The browser never
-            parses it as markup, so the alert never fires.
+            Convex validates and normalizes the payload in{" "}
+            <code className="font-mono">convex/reviews.ts</code>. React then
+            escapes the stored comment as a text node, so the browser never
+            parses it as markup and the alert never fires.
           </p>
         </div>
       ) : null}
