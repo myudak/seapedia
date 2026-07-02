@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 
 export type CartItem = {
   id: string;
@@ -35,7 +36,7 @@ type CartContextValue = {
   subtotal: number;
   count: number;
   loading: boolean;
-  /** True once the buyer-cart endpoint has been reached at least once. */
+  /** True once session/cart availability has been checked at least once. */
   ready: boolean;
   /** Whether the active session can use a buyer cart at all. */
   available: boolean;
@@ -50,6 +51,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 const EMPTY: CartSummary = { items: [], subtotal: 0 };
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [summary, setSummary] = useState<CartSummary>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState(false);
@@ -74,7 +76,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const refresh = useCallback(async () => {
+    setLoading(true);
     try {
+      const profileResponse = await fetch("/api/profile", {
+        cache: "no-store",
+      });
+      const profilePayload = await profileResponse.json().catch(() => null);
+      if (
+        !profileResponse.ok ||
+        !profilePayload?.ok ||
+        profilePayload.data?.activeRole !== "Buyer"
+      ) {
+        setSummary(EMPTY);
+        setAvailable(false);
+        return;
+      }
       const response = await fetch("/api/buyer/cart");
       await applyResponse(response);
     } catch {
@@ -86,23 +102,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [applyResponse]);
 
-  // Initial load. Uses .then/.finally so no setState runs synchronously in the
-  // effect body (avoids cascading-render lint and is correct for data fetching).
+  // Recheck access after navigation so login, logout, and role changes update
+  // the header count without querying Buyer-only functions for other roles.
   useEffect(() => {
     let active = true;
-    fetch("/api/buyer/cart")
-      .then((response) => (active ? applyResponse(response) : null))
-      .catch(() => undefined)
-      .finally(() => {
-        if (active) {
-          setReady(true);
-          setLoading(false);
-        }
-      });
+    Promise.resolve().then(() => {
+      if (active) void refresh();
+    });
     return () => {
       active = false;
     };
-  }, [applyResponse]);
+  }, [pathname, refresh]);
 
   const addItem = useCallback<CartContextValue["addItem"]>(
     async (productId, quantity = 1) => {
