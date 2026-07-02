@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ArrowRight,
   Search,
@@ -22,14 +23,43 @@ import {
 } from "@/lib/catalog/server";
 import type { CatalogSort } from "@/lib/catalog/catalog";
 import { formatRupiah } from "@/lib/seed/public-products";
-
-export const metadata = {
-  title: "Catalog",
-};
+import { siteDescription } from "@/lib/site";
 
 type ProductsPageProps = {
   searchParams: Promise<{ q?: string; category?: string; page?: string; sort?: string }>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: ProductsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const hasVariant = Boolean(
+    params.q || params.category || params.page || params.sort,
+  );
+  const description =
+    "Jelajahi 32 produk lokal pilihan dari seller SEAPEDIA dalam kategori Fashion, Food, Home, dan Gadget.";
+
+  return {
+    title: "Katalog Produk Lokal",
+    description,
+    alternates: { canonical: "/products" },
+    robots: hasVariant
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
+    openGraph: {
+      type: "website",
+      locale: "id_ID",
+      url: "/products",
+      title: "Katalog Produk Lokal | SEAPEDIA",
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Katalog Produk Lokal | SEAPEDIA",
+      description: siteDescription,
+    },
+  };
+}
 
 function buildHref(params: { q?: string; category?: string; page?: number; sort?: CatalogSort }) {
   const search = new URLSearchParams();

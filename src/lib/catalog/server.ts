@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../../../convex/_generated/api";
 import { catalogSorts, type CatalogOptions, type CatalogSort } from "./catalog";
@@ -22,10 +23,14 @@ export async function getCatalogPage(options: CatalogOptions = {}) {
   return await fetchQuery(api.catalog.list, options);
 }
 
-export async function getCatalogProduct(publicId: string) {
+export const getCatalogProduct = cache(async (publicId: string) => {
   return await fetchQuery(api.catalog.getByPublicId, { publicId });
-}
+});
 
 export async function getFeaturedProducts(limit = 4) {
   return await fetchQuery(api.catalog.featured, { limit });
+}
+
+export async function getSitemapProducts() {
+  return await fetchQuery(api.catalog.listForSitemap, {});
 }

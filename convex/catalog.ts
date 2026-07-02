@@ -109,3 +109,22 @@ export const featured = query({
       .slice(0, Math.min(Math.max(Math.trunc(limit ?? 4), 1), 12));
   },
 });
+
+export const listForSitemap = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      publicId: v.string(),
+      imageUrl: v.string(),
+      updatedAt: v.number(),
+    }),
+  ),
+  handler: async (ctx) => {
+    const products = await ctx.db.query("products").take(10_000);
+    return products.map((product) => ({
+      publicId: product.publicId,
+      imageUrl: product.imageUrl,
+      updatedAt: product.updatedAt,
+    }));
+  },
+});

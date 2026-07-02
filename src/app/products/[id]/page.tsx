@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
   BadgeCheck,
   ChevronRight,
@@ -13,20 +14,51 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { BuyActions } from "@/components/buy-actions";
 import { ProductGallery } from "@/components/product-gallery";
+import { JsonLd } from "@/components/json-ld";
 import { Card } from "@/components/ui/card";
 import { getCatalogProduct } from "@/lib/catalog/server";
 import { fetchAuthQuery } from "@/lib/auth-server";
 import { api } from "../../../../convex/_generated/api";
 import { formatRupiah } from "@/lib/seed/public-products";
+import { absoluteUrl, siteName } from "@/lib/site";
 
 type ProductDetailProps = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({ params }: ProductDetailProps) {
+export async function generateMetadata({
+  params,
+}: ProductDetailProps): Promise<Metadata> {
   const { id } = await params;
   const product = await getCatalogProduct(id);
-  return { title: product?.name ?? "Product" };
+  if (!product) {
+    return {
+      title: "Produk tidak ditemukan",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const url = `/products/${product.id}`;
+  const description = `${product.description} Tersedia dari ${product.storeName} di SEAPEDIA.`;
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      locale: "id_ID",
+      url,
+      title: `${product.name} | ${siteName}`,
+      description,
+      images: [{ url: product.imageUrl, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | ${siteName}`,
+      description,
+      images: [product.imageUrl],
+    },
+  };
 }
 
 const infoRows = [
@@ -92,9 +124,63 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
     ["Sold", `${product.soldCount ?? 0} orders`],
     ["Checkout", "Buyer role only"],
   ];
+  const productUrl = absoluteUrl(`/products/${product.id}`);
 
   return (
     <AppShell>
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description: product.description,
+            image: galleryImages.map(absoluteUrl),
+            category: product.category,
+            sku: product.id,
+            url: productUrl,
+            offers: {
+              "@type": "Offer",
+              url: productUrl,
+              priceCurrency: "IDR",
+              price: product.price,
+              availability:
+                product.stock > 0
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+              itemCondition: "https://schema.org/NewCondition",
+              seller: {
+                "@type": "Organization",
+                name: product.storeName,
+              },
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Beranda",
+                item: absoluteUrl("/"),
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Produk",
+                item: absoluteUrl("/products"),
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: product.name,
+                item: productUrl,
+              },
+            ],
+          },
+        ]}
+      />
       <main className="bg-[var(--background)]">
         {/* Breadcrumb */}
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">

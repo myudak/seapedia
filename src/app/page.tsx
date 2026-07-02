@@ -18,8 +18,10 @@ import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ReviewsSection } from "@/components/reviews-section";
+import { JsonLd } from "@/components/json-ld";
 import { getFeaturedProducts } from "@/lib/catalog/server";
 import { formatRupiah } from "@/lib/seed/public-products";
+import { absoluteUrl, siteDescription, siteName } from "@/lib/site";
 
 const stats = [
   ["12%", "PPN shown at checkout"],
@@ -86,6 +88,30 @@ export default async function Home() {
 
   return (
     <AppShell>
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: siteName,
+            url: absoluteUrl("/"),
+            logo: absoluteUrl("/assets/brand/seapedia-app-icon.png"),
+            description: siteDescription,
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: siteName,
+            url: absoluteUrl("/"),
+            description: siteDescription,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${absoluteUrl("/products")}?q={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          },
+        ]}
+      />
       <main className="bg-[var(--background)]">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-[var(--line)] bg-[#15110d]">

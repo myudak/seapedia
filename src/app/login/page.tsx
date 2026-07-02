@@ -3,6 +3,7 @@ import { AuthPanel } from "@/components/auth-panel";
 
 export const metadata = {
   title: "Login",
+  robots: { index: false, follow: false },
 };
 
 export default function LoginPage() {
