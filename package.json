@@ -10,7 +10,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "convex run testing:resetForE2E && playwright test && convex run testing:resetForE2E",
     "convex:dev": "convex dev",
     "convex:dashboard": "convex dashboard",
     "dev:local": "convex dev --start \"pnpm dev:next\"",

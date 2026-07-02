@@ -22,6 +22,7 @@ import type * as profiles from "../profiles.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
 import type * as seller from "../seller.js";
+import type * as testing from "../testing.js";
 import type * as validators from "../validators.js";
 
 import type {
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   reviews: typeof reviews;
   seed: typeof seed;
   seller: typeof seller;
+  testing: typeof testing;
   validators: typeof validators;
 }>;
 
