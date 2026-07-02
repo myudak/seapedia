@@ -26,6 +26,25 @@ test("login form hydrates before credentials are submitted", async ({ page }) =>
   await expect(passwordInput).toHaveAttribute("type", "text");
 });
 
+test("a new user can register and receives the Buyer dashboard", async ({
+  page,
+}) => {
+  const suffix = Date.now().toString(36);
+  const username = `e2e${suffix}`;
+
+  await page.goto("/register");
+  await page.getByLabel("Display name").fill("E2E Buyer");
+  await page.getByLabel("Email").fill(`${username}@example.test`);
+  await page.getByLabel("Username", { exact: true }).fill(username);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  await expect(page).toHaveURL("/dashboard/buyer", { timeout: 15_000 });
+  await expect(
+    page.getByRole("heading", { name: "Buyer Dashboard" }),
+  ).toBeVisible();
+});
+
 for (const account of [
   { username: "buyer", role: "Buyer" },
   { username: "seller", role: "Seller" },

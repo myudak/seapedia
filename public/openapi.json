@@ -5,13 +5,19 @@
     "version": "1.0.0",
     "description": "Documented HTTP API for the SEAPEDIA marketplace application."
   },
-  "servers": [{ "url": "http://127.0.0.1:3001" }],
+  "servers": [
+    { "url": "https://seapedia-gamma.vercel.app", "description": "Production" },
+    { "url": "http://127.0.0.1:3001", "description": "Local development" }
+  ],
   "paths": {
     "/api/auth/sign-up/email": { "post": { "summary": "Register with Better Auth" } },
     "/api/auth/sign-in/username": { "post": { "summary": "Sign in with username and set session cookie" } },
     "/api/auth/role": { "post": { "summary": "Choose active role" } },
     "/api/auth/sign-out": { "post": { "summary": "Revoke the Better Auth session" } },
-    "/api/profile": { "get": { "summary": "Read current profile" } },
+    "/api/profile": {
+      "get": { "summary": "Read current profile" },
+      "post": { "summary": "Bootstrap the authenticated user profile" }
+    },
     "/api/reviews": {
       "get": { "summary": "List public application reviews" },
       "post": { "summary": "Create public application review" }
@@ -35,6 +41,7 @@
       "post": { "summary": "Process order to Menunggu Pengirim" }
     },
     "/api/seller/reports": { "get": { "summary": "Seller income report" } },
+    "/api/seller/insights": { "get": { "summary": "Seller order and income dashboard insights" } },
     "/api/buyer/wallet": {
       "get": { "summary": "Read buyer wallet balance and ledger" }
     },
@@ -59,6 +66,7 @@
     },
     "/api/buyer/reports": { "get": { "summary": "Buyer spending report" } },
     "/api/driver/jobs": { "get": { "summary": "List available delivery jobs" } },
+    "/api/driver/jobs/{id}": { "get": { "summary": "Read delivery job detail" } },
     "/api/driver/jobs/{id}/take": { "post": { "summary": "Take a delivery job" } },
     "/api/driver/jobs/{id}/complete": {
       "post": { "summary": "Complete a delivery job" }
@@ -75,7 +83,10 @@
       "get": { "summary": "List promos" },
       "post": { "summary": "Create fixed-amount promo" }
     },
-    "/api/admin/time": { "post": { "summary": "Advance the system clock (time machine)" } },
+    "/api/admin/time": {
+      "get": { "summary": "Read the simulated system clock" },
+      "post": { "summary": "Advance the system clock (time machine)" }
+    },
     "/api/admin/overdue": {
       "get": { "summary": "List overdue orders" },
       "post": { "summary": "Run auto return/refund" }

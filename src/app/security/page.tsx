@@ -27,31 +27,31 @@ const checklist = [
     icon: UserX,
     title: "Broken object authorization → 403",
     rule: "A buyer cannot read another user's order. Resource lookups verify ownership, not just authentication.",
-    proof: "getOrderForParticipant() + requireActiveRole('Buyer')",
+    proof: "orders.getBuyerOrder + requireActiveRole('Buyer')",
   },
   {
     icon: Lock,
     title: "Broken function authorization → 403",
     rule: "A seller cannot edit or delete a product that belongs to a different seller's store.",
-    proof: "updateSellerProduct() / deleteSellerProduct() ownership checks",
+    proof: "seller.updateProduct / seller.deleteProduct ownership checks",
   },
   {
     icon: Fingerprint,
     title: "Active-role enforcement",
     rule: "Changing the URL alone never grants access. Every private API re-checks the session's active role server-side.",
-    proof: "requireActiveRole() on each /api/(buyer|seller|driver|admin)/* route",
+    proof: "requireActiveRole() inside private Convex queries and mutations",
   },
   {
     icon: KeyRound,
     title: "Authentication hardening",
-    rule: "Passwords are bcrypt-hashed; sessions are httpOnly cookies backed by server-side records with expiry, and logout revokes them.",
-    proof: "loginUser() / logoutToken() · SESSION_COOKIE httpOnly cookie",
+    rule: "Better Auth hashes credentials and manages database-backed sessions with expiry; logout revokes the active session.",
+    proof: "Better Auth email/password + Convex adapter",
   },
   {
     icon: ShieldCheck,
     title: "Validated, structured data access",
     rule: "Every route handler validates input with Zod, and data access is structured (no string-built queries) — minimizing injection risk.",
-    proof: "zod schemas in route handlers · in-memory/Convex-style access",
+    proof: "Zod route schemas + Convex argument validators and indexes",
   },
 ];
 
