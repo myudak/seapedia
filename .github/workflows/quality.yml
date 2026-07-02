@@ -1,0 +1,51 @@
+name: Submission quality
+
+on:
+  push:
+    branches: [master, "codex/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_CONVEX_URL: http://127.0.0.1:3210
+      NEXT_PUBLIC_CONVEX_SITE_URL: http://127.0.0.1:3211
+      NEXT_PUBLIC_SITE_URL: https://seapedia-gamma.vercel.app
+      SITE_URL: http://127.0.0.1:3001
+      BETTER_AUTH_SECRET: ci-only-secret-value-with-at-least-32-characters
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
