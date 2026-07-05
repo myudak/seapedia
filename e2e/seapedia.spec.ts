@@ -26,6 +26,19 @@ test("login form hydrates before credentials are submitted", async ({ page }) =>
   await expect(passwordInput).toHaveAttribute("type", "text");
 });
 
+test("evaluator credentials are visible and can autofill login", async ({
+  page,
+}) => {
+  await page.goto("/login");
+
+  await expect(page.getByText("seapedia123", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Use maya account" }).click();
+  await expect(page.getByLabel("Username", { exact: true })).toHaveValue("maya");
+  await expect(page.getByLabel("Password", { exact: true })).toHaveValue(
+    "seapedia123",
+  );
+});
+
 test("a new user can register and receives the Buyer dashboard", async ({
   page,
 }) => {

@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
+  KeyRound,
   LayoutDashboard,
   Lock,
   LogIn,
@@ -48,6 +49,16 @@ const features = [
     body: "Tools tailored to your role.",
   },
 ];
+
+const evaluatorAccounts = [
+  { username: "admin", roles: "Admin" },
+  { username: "maya", roles: "Buyer · Seller · Driver" },
+  { username: "seller", roles: "Seller" },
+  { username: "buyer", roles: "Buyer" },
+  { username: "driver", roles: "Driver" },
+] as const;
+
+const evaluatorPassword = "seapedia123";
 
 export function AuthPanel({ mode }: AuthPanelProps) {
   const router = useRouter();
@@ -245,7 +256,54 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               {isLogin ? "Masuk ke akun SEAPEDIA." : "Daftar akun SEAPEDIA baru."}
             </p>
 
-            <form className="mt-7 grid gap-4" onSubmit={handleSubmit}>
+            {isLogin ? (
+              <section className="-mx-8 mt-6 border-y border-[var(--line)] bg-[var(--soft)]/70 px-8 py-4 sm:-mx-10 sm:px-10">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    <KeyRound size={14} className="text-[var(--market)]" />
+                    Evaluator access
+                  </span>
+                  <span className="text-xs text-[var(--muted)]">
+                    Password{" "}
+                    <code className="font-semibold text-[var(--ink)]">
+                      {evaluatorPassword}
+                    </code>
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {evaluatorAccounts.map((account) => {
+                    const selected = username === account.username;
+                    return (
+                      <button
+                        key={account.username}
+                        type="button"
+                        aria-label={`Use ${account.username} account`}
+                        aria-pressed={selected}
+                        onClick={() => {
+                          setUsername(account.username);
+                          setPassword(evaluatorPassword);
+                          setError(null);
+                        }}
+                        className={`min-w-0 border px-3 py-2 text-left transition last:col-span-2 hover:border-[var(--market)] ${
+                          selected
+                            ? "border-[var(--market)] bg-white shadow-[inset_3px_0_0_var(--market)]"
+                            : "border-[var(--line)] bg-white/70"
+                        }`}
+                      >
+                        <span className="block truncate text-sm font-semibold">
+                          {account.username}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[11px] text-[var(--muted)]">
+                          {account.roles}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
+
+            <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
               {!isLogin ? (
                 <>
                   <Field label="Display name">

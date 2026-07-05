@@ -25,7 +25,7 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </div>
 
-        <div className="mx-auto flex min-h-[4.5rem] max-w-7xl items-center gap-6 px-4 sm:px-6">
+        <div className="mx-auto flex min-h-[4.5rem] max-w-7xl items-center gap-2 px-4 sm:gap-6 sm:px-6">
           <Link href="/" className="flex shrink-0 items-center gap-3">
             <span className="relative size-10 overflow-hidden rounded-xl border border-[var(--line)] bg-white">
               <Image
